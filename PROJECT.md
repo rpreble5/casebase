@@ -111,6 +111,7 @@ commit-then-compare, 100-point differentials, order composers, cross-out.
 | `keypad` | For arithmetic. No range shown — a slider would leak the magnitude. |
 | `confirm` | Pharmacy reads back an order; confirm or hold. The justification is asked on **both** paths so the structure never tells you which way was right. |
 | `medrec` | Home medication list, three states per drug. See §4. |
+| `grid` | A subject and a list of factors; each factor gets its own up / down / same call. Every row grades independently, so partial understanding shows up as partial credit instead of collapsing into one compound MCQ. A "same" row is required wherever one exists in the real clinical answer, or the mechanic degenerates into a binary guess. The pressed state is deliberately uniform (`--plum`, the app's one "your selection" color) rather than colored per direction — coloring "up" one way and "down" another would leak the answer through color itself, the same class of mistake the app avoids elsewhere by rationing what each token means. |
 
 **Not built, previously designed:** chain assembly (drag pathophysiology nodes
 into a causal structure) and timeline sequencing (order actions that are all
@@ -190,7 +191,7 @@ asterisks.
 anion gap while the attending asks you to calculate it hands over the answer),
 and a test they must think to order (the urine studies in the hyponatremia case).
 
-**Orders come from one shared catalog** (`data/orderCatalog.ts`, 88 items). A
+**Orders come from one shared catalog** (`data/orderCatalog.ts`, 99 items). A
 case declares which ids it shows and how each scores; it never invents order
 names, so a physician reviewer checks clinical judgment rather than proofreading.
 
@@ -203,6 +204,7 @@ names, so a physician reviewer checks clinical judgment rather than proofreading
 | `dka-reyes` | Two days of vomiting | 28 | 4 |
 | `gib-sandoval` | He stood up too fast | 31 | 6 |
 | `hypona-boyd` | She's not making sense | 27 | 6 |
+| `hf-voss` | He didn't want to leave the wedding | 30 | 5 |
 
 **DKA — Marisol Reyes, 24.** Type 1 diabetic three days out of glargine because
 she aged off her parents' insurance. Arrival chemistry is written to carry a
@@ -225,6 +227,22 @@ the autocorrection overshoot — her ADH switches off, her own kidneys correct h
 faster than anything prescribed, and the rescue is free water with a desmopressin
 clamp.
 
+**Heart failure — Harold Voss, 68.** Written fresh after switching models, reusing
+only the schema and mechanics, not the earlier cases' content patterns. Diagnosis
+is exam-first: JVP, crackles and edema on Dani's exam before a single lab exists,
+then wet/warm versus wet/cold as the framing MCQ. The precipitant is withheld
+inside the workup — new atrial fibrillation with RVR surfaces as its own ECG-reveal
+beat, not as an admission-note fact. The GDMT trap runs the opposite direction from
+the GI bleed case: there the beta blocker was the thing quietly protecting him,
+here carvedilol is the thing a resident is tempted to hold on a decompensated
+patient and shouldn't, while lisinopril and spironolactone are the ones that
+actually need holding. A wagered two-part Ezra ambush covers cardioversion timing
+in new-onset AFib, and a paired beat hedges the creatinine bump seen during
+decongestion — rising creatinine as an expected consequence of effective
+diuresis, not automatically a reason to back off. First case to use the `grid`
+mechanic, on BNP confounders (obesity, renal impairment, new AFib, age, sepsis,
+well-controlled hypertension) independent of true volume status.
+
 ### Clinical calls awaiting your sign-off
 
 - DKA arrival panel: Na 129 / Cl 88 / HCO₃ 12, gap 29, delta-delta ~1.4.
@@ -234,6 +252,16 @@ clamp.
 - GI bleed: ICU admission scored **correct**, stepdown merely defensible.
 - Hyponatremia: correction ceiling 8 mEq/L in 24h (tolerance 6–10); **relowering**
   an overshoot scored as correct.
+- Heart failure: IV furosemide starting dose scored correct across 60–100mg
+  (2.5× his home oral dose at 40mg), on a slider ranging 20–200mg.
+- Heart failure: BNP and troponin read as normal below 100 pg/mL and 0.04 ng/mL
+  respectively — thresholds asserted narratively, not shown on screen.
+- Heart failure: anticoagulation-for-new-AFib reasoning is argued out loud
+  (CHA₂DS₂-VASc risk factors named in dialogue) rather than computed as an
+  on-screen score.
+- Heart failure: the creatinine-bump beat frames rising creatinine during
+  decongestion as usually hemoconcentration/reduced flow from effective diuresis
+  rather than kidney injury — a real but contested read worth a second opinion.
 
 ---
 
