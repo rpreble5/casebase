@@ -1,0 +1,77 @@
+.avatar {
+  position: relative;
+  display: block;
+  border-radius: 50%;
+  border: var(--bw) solid var(--ink);
+  flex: none;
+  overflow: hidden;
+}
+
+.avatar__eye {
+  position: absolute;
+  top: 46%;
+  width: 17%;
+  height: 17%;
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.avatar__eye--l {
+  left: 24%;
+}
+.avatar__eye--r {
+  right: 24%;
+}
+
+/* Ezra's glasses — a bar across the eyes, drawn at border weight. */
+.avatar--glasses::before {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 45%;
+  height: 2.5px;
+  background: var(--ink);
+}
+
+.avatar--glasses .avatar__eye {
+  width: 26%;
+  height: 26%;
+  top: 33%;
+  border-radius: 50%;
+  background: transparent;
+  border: 2.5px solid var(--ink);
+}
+
+.avatar--glasses .avatar__eye--l {
+  left: 10%;
+}
+.avatar--glasses .avatar__eye--r {
+  right: 10%;
+}
+
+/* Dani's scrub cap. Shallow enough to stay legible in a 26px header chip. */
+.avatar--cap::before {
+  content: "";
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  top: -26%;
+  height: 44%;
+  border-radius: 0 0 46% 46%;
+  background: var(--ink);
+}
+
+/* Marisol's bangs. */
+.avatar--bangs::before {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: -30%;
+  height: 52%;
+  border-radius: 50% 50% 30% 30%;
+  background: var(--ink);
+}

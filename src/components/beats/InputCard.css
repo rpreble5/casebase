@@ -1,0 +1,455 @@
+.ic {
+  margin: 22px 0 8px 52px;
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: 0 var(--lift) 0 var(--ink);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ic--row {
+  flex-direction: row;
+  gap: 14px;
+}
+
+.ic__ask {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.ic__hint {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* ---- wager ---- */
+
+.ic__wagers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.wager {
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  border-radius: var(--r);
+}
+
+.wager b {
+  font-size: 15px;
+}
+
+.wager em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.wager--sure {
+  background: var(--ochre);
+}
+.wager--sure:hover {
+  background: #dda03d;
+}
+.wager--think {
+  background: var(--paper-deep);
+}
+.wager--unsure {
+  background: transparent;
+}
+
+/* ---- options ---- */
+
+.ic__opts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  border: var(--bw) solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper-deep);
+  padding: 13px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--ink);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+}
+
+.opt:hover {
+  background: #f0e3c6;
+}
+
+.opt:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.opt[aria-pressed="true"] {
+  background: var(--plum);
+  color: var(--paper);
+}
+
+.opt__box {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: var(--bw) solid var(--ink);
+  border-radius: 9px;
+  background: var(--paper);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.opt__box svg {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+}
+
+[aria-pressed="true"] .opt__box svg {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.18s ease-out;
+}
+
+.opt__dot {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border: var(--bw) solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+/* ---- order picker ---- */
+
+.ic__groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ic__group h4 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.ic__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 9px;
+}
+
+.ord {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper-deep);
+  padding: 9px 12px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+}
+
+.ord:hover {
+  background: #f0e3c6;
+}
+.ord:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.ord[aria-pressed="true"] {
+  background: var(--plum);
+  color: var(--paper);
+}
+
+.ord .opt__box {
+  width: 22px;
+  height: 22px;
+  border-width: 2.5px;
+  border-radius: 7px;
+}
+
+.ord__name {
+  line-height: 1.25;
+}
+
+/* ---- commit row ---- */
+
+.ic__commit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 2.5px dashed rgba(38, 42, 68, 0.2);
+  padding-top: 16px;
+}
+
+.ic__count {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic__go {
+  padding: 13px 26px;
+  font-size: 16px;
+  background: var(--sage);
+  color: var(--paper);
+  border-radius: var(--r);
+}
+
+.ic__go:hover:not(:disabled) {
+  background: #63997f;
+}
+
+/* Both read identically on purpose. Making "Hold on" the loud one would tell the
+   resident an order is wrong before they've looked at it. */
+.ic__confirm {
+  flex: 1;
+  padding: 16px 20px;
+  font-size: 16px;
+}
+
+/* ---- slider ---- */
+
+.dial__val {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dial__val span {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-left: 9px;
+  letter-spacing: 0;
+}
+
+.dial input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  margin: 22px 0 6px;
+  background: transparent;
+}
+
+.dial input[type="range"]::-webkit-slider-runnable-track {
+  height: 18px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.dial input[type="range"]::-moz-range-track {
+  height: 18px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.dial input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 34px;
+  height: 34px;
+  margin-top: -11px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 50%;
+  background: var(--ochre);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: grab;
+}
+
+.dial input[type="range"]::-moz-range-thumb {
+  width: 34px;
+  height: 34px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 50%;
+  background: var(--ochre);
+  box-shadow: 0 3px 0 var(--ink);
+  cursor: grab;
+}
+
+.dial__ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- keypad ---- */
+
+.ic--pad {
+  align-items: center;
+}
+
+.pad__readout {
+  font-size: 46px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  min-height: 52px;
+}
+
+.pad__readout em {
+  font-style: normal;
+  color: var(--ink-faint);
+}
+
+.pad__readout span {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-left: 8px;
+}
+
+.pad__keys {
+  display: grid;
+  grid-template-columns: repeat(3, 74px);
+  gap: 10px;
+}
+
+.pad__key {
+  height: 58px;
+  font-size: 22px;
+  font-weight: 800;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.pad__key--del {
+  background: var(--paper-sink);
+}
+
+.pad__go {
+  width: 242px;
+}
+
+/* ---- reveal ---- */
+
+.reveal {
+  background: var(--paper-card);
+}
+
+.reveal--right {
+  border-color: var(--ink);
+  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(111, 168, 143, 0.28);
+}
+
+.reveal--wrong {
+  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(196, 116, 75, 0.28);
+}
+
+.reveal__head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.reveal__head b {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.reveal__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: var(--bw) solid var(--ink);
+  border-radius: 50%;
+  flex: none;
+  color: var(--paper);
+}
+
+.reveal--right .reveal__mark {
+  background: var(--sage);
+}
+.reveal--wrong .reveal__mark {
+  background: var(--clay);
+}
+
+.reveal__wager {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.reveal__tally {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.reveal__notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reveal__notes li {
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-weight: 600;
+  padding-left: 14px;
+  border-left: 4px solid var(--ink-faint);
+}
+
+.reveal__notes li.is-bad {
+  border-left-color: var(--clay);
+}
+.reveal__notes li.is-good {
+  border-left-color: var(--sage);
+}
+
+@media (max-width: 900px) {
+  .ic {
+    margin-left: 0;
+  }
+}

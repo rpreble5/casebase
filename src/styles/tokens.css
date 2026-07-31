@@ -1,0 +1,39 @@
+/* Design tokens — carried over verbatim from the approved visual direction.
+   Single committed light theme: this is a paper world, and a dark inversion
+   would destroy the halftone-on-cream ground the whole style rests on. */
+
+:root {
+  /* ground */
+  --paper: #f4ead5;
+  --paper-deep: #e9dabb;
+  --paper-sink: #dcc9a4;
+  --paper-card: #fbf5e7;
+
+  /* ink */
+  --ink: #262a44;
+  --ink-soft: #5a5f7d;
+  --ink-faint: rgba(38, 42, 68, 0.13);
+
+  /* accents — each has exactly one job */
+  --sage: #6fa88f; /* the nurse, correct answers */
+  --rose: #dc8ca1; /* the patient and family */
+  --plum: #9887c7; /* the attending, your selections */
+  --ochre: #e6a945; /* things you manipulate, progress */
+  --clay: #c4744b; /* consequences */
+  --gunner: #7f9ec4; /* Ezra — cool blue, deliberately not one of the five */
+
+  --abnormal: #b03a3a;
+
+  /* form */
+  --r-sm: 10px;
+  --r: 16px;
+  --r-lg: 20px;
+  --bw: 3px;
+  --lift: 5px;
+
+  /* rhythm */
+  --gutter: 62px;
+  --col-max: 660px;
+
+  --ease-pop: cubic-bezier(0.34, 1.4, 0.5, 1);
+}

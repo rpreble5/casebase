@@ -1,0 +1,83 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: radial-gradient(
+    circle at center,
+    rgba(38, 42, 68, 0.075) 1.1px,
+    transparent 1.2px
+  );
+  background-size: 7px 7px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* paper grain, fixed above the ground and below everything else */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.28;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: var(--bw) solid var(--plum);
+  outline-offset: 3px;
+}
+
+/* Shared chunky-button vocabulary: 3px ink border, hard 5px drop, no blur.
+   Pressing drives the control down into its own shadow. */
+.chunk {
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r);
+  background: var(--paper-deep);
+  box-shadow: 0 var(--lift) 0 var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+}
+
+.chunk:hover:not(:disabled) {
+  background: #f0e3c6;
+}
+
+.chunk:active:not(:disabled) {
+  transform: translateY(var(--lift));
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.chunk:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
