@@ -6,6 +6,7 @@ import { catalogItem } from "../../data/orderCatalog";
 import { Avatar } from "../ui/Avatar";
 import { Bubble } from "../Conversation/Bubble";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
+import { Report } from "../Report";
 import { play } from "../../audio/sounds";
 import "./InputCard.css";
 
@@ -31,7 +32,7 @@ export function Stage() {
   const ask = useRun((s) => s.activeAsk);
 
   if (!caseData) return null;
-  if (phase === "done") return <DoneCard />;
+  if (phase === "done") return <Report />;
   if (phase === "reveal") return <ContinueBar />;
   if (phase !== "input" && phase !== "wager" && phase !== "followUp") return null;
 
@@ -442,26 +443,5 @@ function ContinueBar() {
         </button>
       </motion.div>
     </AnimatePresence>
-  );
-}
-
-function DoneCard() {
-  const reset = useRun((s) => s.reset);
-  return (
-    <motion.div className="done" {...pop}>
-      <div className="opts">
-        <b className="ic__ask">End of the slice.</b>
-        <p className="ic__hint">
-          Beats 14–22 aren't written yet — the dextrose threshold, the gap-versus-glucose beat,
-          the transition off the drip, and Ezra's nitroprusside ambush.
-        </p>
-      </div>
-      <div className="opts__commit">
-        <span />
-        <button className="chunk ic__go" onClick={reset}>
-          Run it again
-        </button>
-      </div>
-    </motion.div>
   );
 }

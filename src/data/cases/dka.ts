@@ -40,6 +40,8 @@ export const dkaCase: MedicalCase = {
   vitals: [
     { time: "22:04", hr: 122, bp: "96/58", rr: 28, temp: "37.1 °C", spo2: 99 },
     { time: "23:15", hr: 108, bp: "104/64", rr: 24, temp: "37.0 °C", spo2: 99 },
+    { time: "02:30", hr: 94, bp: "112/70", rr: 20, temp: "36.9 °C", spo2: 99 },
+    { time: "06:00", hr: 82, bp: "118/74", rr: 16, temp: "36.8 °C", spo2: 99 },
   ],
 
   analytes: [
@@ -472,6 +474,441 @@ export const dkaCase: MedicalCase = {
           "Alright. Potassium's going in, fluids are running, insulin waits.",
           "Go see her. She's been lying there for an hour listening to us talk about her, and nobody's told her anything.",
         ],
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* The patient finally gets a voice                                  */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "say",
+      id: "b14",
+      speaker: "marisol",
+      say: [
+        [
+          "Are you the doctor? Nobody will tell me anything.",
+          "My chest hurts from breathing like this and there's a bag of something going into my arm and I don't know what it is.",
+        ],
+      ],
+    },
+
+    {
+      kind: "mcq",
+      id: "b15",
+      speaker: "marisol",
+      tier: "core",
+      domain: "communication",
+      say: [
+        "Why do I need so much fluid? I feel like I'm drowning. Can you slow it down?",
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "You've lost several litres — your kidneys have been dumping sugar and water for two days. The fluid is what lets them start clearing it again.",
+        },
+        { id: "b", text: "It's the protocol for what you have. We'll slow it down when we can." },
+        { id: "c", text: "The fluid dilutes the acid in your blood, which is what's making you breathe like that." },
+        { id: "d", text: "We need to flush the ketones out of your system." },
+      ],
+      correct: "a",
+      why: {
+        b: "True, and useless to her. She asked why, and a protocol isn't a reason — it's a way of not answering.",
+        c: "Dilution isn't the mechanism, and telling a frightened patient something plausible-but-wrong costs you the next explanation.",
+        d: "Ketones aren't flushed out. Insulin switches off the production; the fluid restores her circulation and renal clearance.",
+      },
+      rep: { who: "marisol", points: 2 },
+      onRight: [
+        [
+          "Okay. So it's not — I thought you were just filling me up with water.",
+          "Nobody's said any of that. Thank you.",
+        ],
+      ],
+      onWrong: [
+        "Right. Okay.",
+        "I still don't really understand, but okay.",
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* The road not taken — reachable only by asking about it            */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "mcq",
+      id: "b16",
+      speaker: "okafor",
+      tier: "bonus",
+      domain: "diagnosis",
+      wager: true,
+      say: [
+        "While we wait on the repeat gas — a hypothetical.",
+        [
+          "Say she'd walked in with everything else exactly the same. The vomiting, the deep breathing, gap of twenty-nine, ketones through the roof.",
+          "But her glucose was a hundred and eighty. Is it still DKA?",
+        ],
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "Yes — euglycemic DKA. Ketoacidosis with a near-normal glucose, classically with SGLT2 inhibitors, pregnancy, or prolonged fasting.",
+        },
+        { id: "b", text: "No — a glucose above 250 is required to make the diagnosis." },
+        { id: "c", text: "No — with that glucose it would be a starvation ketosis, which doesn't need insulin." },
+        { id: "d", text: "Yes, but only in pregnancy — otherwise the glucose has to be high." },
+      ],
+      correct: "a",
+      why: {
+        b: "The glucose threshold is a feature of the typical presentation, not a requirement. Treating it as one is how euglycemic DKA gets sent home.",
+        c: "Starvation ketosis doesn't produce a gap of twenty-nine. And the treatment for a gap that size is insulin and dextrose either way.",
+        d: "Pregnancy is one cause. SGLT2 inhibitors are the one you'll actually meet, and they're the reason this matters more than it used to.",
+      },
+      rep: { who: "okafor", points: 3 },
+      onRight: [
+        [
+          "Good. The glucose is the part everyone anchors on, and it's the least important of the three.",
+          "Gap, ketones, and a reason to be insulin-deficient. That's the diagnosis.",
+        ],
+      ],
+      onWrong: [
+        [
+          "Euglycemic DKA. Same acidosis, same ketones, glucose that doesn't look alarming.",
+          "SGLT2 inhibitors are the reason you'll see it. The drug keeps spilling glucose in the urine while the ketogenesis runs unchecked underneath — so the number that would have made you worry never shows up.",
+        ],
+      ],
+    },
+
+    {
+      kind: "labs",
+      id: "b17",
+      draw: 2,
+      speaker: "dani",
+      say: [
+        [
+          "Three thirty. Potassium's up to three seven, so the insulin's been running about four hours.",
+          "Repeat chem is on the screen.",
+        ],
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* Glucose vs gap — the classic error                                */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "mcq",
+      id: "b18",
+      speaker: "okafor",
+      tier: "core",
+      domain: "treatment",
+      say: [
+        "Glucose two sixty-eight, coming down about seventy an hour.",
+        "When do you change her fluids?",
+      ],
+      choices: [
+        { id: "a", text: "At around 200 — add dextrose and keep the insulin running at the same rate" },
+        { id: "b", text: "At around 200 — add dextrose and halve the insulin rate" },
+        { id: "c", text: "When the anion gap closes, whatever the glucose is doing" },
+        { id: "d", text: "Now — 268 is close enough, and you don't want to overshoot" },
+      ],
+      correct: "a",
+      why: {
+        b: "Halving the insulin is the instinct that keeps the gap open. The dextrose exists precisely so you don't have to cut the insulin.",
+        c: "By the time the gap closes at this rate she'd be profoundly hypoglycemic. The glucose sets the dextrose timing; the gap sets when insulin stops.",
+        d: "Adding dextrose this early just means more insulin and more sugar chasing each other. Two hundred is the number.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: ["Two hundred. Dextrose goes up, insulin keeps going."],
+      onWrong: [
+        "At two hundred you add dextrose, and the insulin rate does not change.",
+      ],
+    },
+
+    {
+      kind: "mcq",
+      id: "b19",
+      speaker: "okafor",
+      tier: "core",
+      domain: "pathophys",
+      pairs: "b18",
+      say: ["So why does the insulin keep running once her sugar is normal?"],
+      choices: [
+        {
+          id: "a",
+          text: "The insulin is treating the ketoacidosis, not the glucose — it runs until the gap closes, and the dextrose is what makes that possible",
+        },
+        { id: "b", text: "Stopping insulin abruptly causes rebound hyperglycemia" },
+        { id: "c", text: "The dextrose would cause hypoglycemia without insulin to cover it" },
+        { id: "d", text: "Insulin is needed to keep driving potassium back into the cells" },
+      ],
+      correct: "a",
+      why: {
+        b: "Rebound is real but it's a consequence, not the reason. The reason is that the ketogenesis hasn't stopped yet.",
+        c: "Backwards — the dextrose is there to protect her from the insulin, not the other way round.",
+        d: "Her potassium is being repleted directly. That isn't what the drip is for.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: [
+        [
+          "Right. The sugar was never the disease.",
+          "The gap is the disease, and insulin is the only thing that turns off ketogenesis. Dextrose is just how you keep giving it.",
+        ],
+      ],
+      onWrong: [
+        [
+          "The sugar was never the disease. The gap is.",
+          "Insulin is the only thing that switches off ketogenesis — so it runs until the gap closes, and the dextrose is what lets you keep it running without dropping her sugar through the floor.",
+        ],
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* Ezra's second ambush — right about the chemistry, wrong about her  */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "mcq",
+      id: "b20",
+      speaker: "ezra",
+      tier: "bonus",
+      domain: "diagnosis",
+      wager: true,
+      say: [
+        "Um — I pulled up her urine dip from an hour ago.",
+        [
+          "On arrival her urine ketones were moderate. Now they're large.",
+          "Everything else is getting better but that's getting worse. Is she actually deteriorating?",
+        ],
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "No — the dipstick detects acetoacetate, not β-hydroxybutyrate. As she improves, BHB converts to acetoacetate, so the urine test looks worse while she gets better.",
+        },
+        { id: "b", text: "Yes — the ketosis is still worsening despite the insulin, and the rate should go up" },
+        { id: "c", text: "No — urine ketones lag by several hours, so that dip still reflects her arrival state" },
+        { id: "d", text: "No — the dipstick is picking up acetone, which she's clearing through her lungs" },
+      ],
+      correct: "a",
+      why: {
+        b: "Her serum β-hydroxybutyrate has fallen from 6.8 to 1.4 and her gap from 29 to 15. She is unambiguously better. Chasing the dipstick here would be treating a test, not a patient.",
+        c: "It isn't a lag. It's the assay measuring the wrong ketone — and it gets *more* positive as she recovers, not less.",
+        d: "Nitroprusside doesn't detect acetone meaningfully. It's the acetoacetate that's rising as BHB is oxidised back to it.",
+      },
+      rep: { who: "ezra", points: 3 },
+      onRight: [
+        [
+          "Oh — so the test gets more positive as she gets better.",
+          "That seems like a bad test.",
+        ],
+      ],
+      onWrong: [
+        [
+          "The dipstick is a nitroprusside reaction. It sees acetoacetate and it's essentially blind to β-hydroxybutyrate.",
+          "In deep DKA most of the ketone load is BHB, so the dip understates her. As she recovers, BHB is oxidised back to acetoacetate — and the test climbs while the patient improves. Follow the serum BHB and the gap. Never the dipstick.",
+        ],
+      ],
+    },
+
+    {
+      kind: "labs",
+      id: "b21",
+      draw: 3,
+      speaker: "system",
+      say: ["06:00 — chemistry and gas resulted."],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* The pearl: she's better, and she has a brand-new acidosis          */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "mcq",
+      id: "b22",
+      speaker: "okafor",
+      tier: "bonus",
+      domain: "complications",
+      wager: true,
+      say: [
+        "Gap's seven. Bicarb's twenty-two. She's through it.",
+        [
+          "But look at her chloride. Eighty-eight on arrival, a hundred and nine now.",
+          "Her pH is still 7.37 and her bicarbonate is only just normal. What happened?",
+        ],
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "A hyperchloremic non-gap acidosis from the saline — you've given her several litres of a fluid with a chloride of 154",
+        },
+        { id: "b", text: "The alkalosis from her vomiting has resolved, unmasking the true bicarbonate" },
+        { id: "c", text: "Ongoing ketoacidosis — the gap has closed but the acid load hasn't cleared" },
+        { id: "d", text: "A renal tubular acidosis from the acute kidney injury she arrived with" },
+      ],
+      correct: "a",
+      why: {
+        b: "That's happening too, and it's part of the picture — but it doesn't explain a chloride of 109. Only the saline does.",
+        c: "The gap closing *is* the ketoacidosis clearing. Whatever acidosis is left has no gap, which means it isn't ketones.",
+        d: "Her creatinine is back to 0.9. This was prerenal and it resolved; the chloride is the finding here.",
+      },
+      rep: { who: "okafor", points: 3 },
+      onRight: [
+        [
+          "Good. You cured the ketoacidosis and gave her a different acidosis on the way.",
+          "It's benign and it resolves on its own. But if you didn't know it was coming, you'd look at that bicarb, decide she wasn't better, and keep the insulin running into a hypoglycemic event.",
+        ],
+        "Which is the whole reason we follow the gap and not the bicarbonate.",
+      ],
+      onWrong: [
+        [
+          "Normal saline has a chloride of a hundred and fifty-four. Give someone four litres of it and you get a hyperchloremic, non-gap acidosis.",
+          "It's benign and it self-corrects. But if you don't know it's coming, you look at that bicarbonate, decide she isn't better, and keep the insulin running into a hypoglycemic event.",
+        ],
+        "Which is the whole reason we follow the gap and not the bicarbonate.",
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* Getting her off the drip                                          */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "selectAll",
+      id: "b23",
+      speaker: "pharmacy",
+      tier: "core",
+      domain: "guidelines",
+      say: [
+        "Pharmacy again — I've got a request to stop the insulin infusion on Reyes.",
+        "Before I take it off the pump: what's your transition plan?",
+      ],
+      choices: [
+        { id: "basal", text: "Give subcutaneous long-acting insulin first" },
+        { id: "overlap", text: "Overlap it with the drip for one to two hours" },
+        { id: "gap", text: "Confirm the anion gap has closed" },
+        { id: "eating", text: "Confirm she's tolerating oral intake" },
+        { id: "scale", text: "Order a short-acting correction scale with meals" },
+        { id: "stop_now", text: "Stop the drip as soon as the glucose is under 200" },
+        { id: "no_overlap", text: "Stop the drip and give the long-acting at the same moment" },
+        { id: "bicarb_norm", text: "Wait for the bicarbonate to fully normalise before transitioning" },
+        { id: "scale_only", text: "Cover her with a correction scale alone for the first 24 hours" },
+        { id: "discharge", text: "Plan discharge once she's off the drip" },
+      ],
+      correct: ["basal", "overlap", "gap", "eating", "scale"],
+      cost: {
+        stop_now: "harmful",
+        no_overlap: "harmful",
+        scale_only: "harmful",
+        discharge: "harmful",
+        bicarb_norm: "wasteful",
+      },
+      why: {
+        overlap:
+          "IV insulin has a half-life of minutes. Stop the drip before the subcutaneous dose is working and she's insulin-deficient again inside an hour — straight back into ketosis.",
+        gap: "The gap, not the glucose and not the bicarbonate. Her bicarbonate is being held down by the saline.",
+        bicarb_norm:
+          "This is exactly the trap the chloride was warning you about. Her bicarbonate may sit low for a day from the hyperchloremic acidosis. Waiting on it means running insulin into a patient who no longer needs it.",
+        no_overlap: "No overlap means an insulin-free window. That's how people bounce back into DKA on the ward.",
+        scale_only:
+          "A correction scale is reactive — it treats hyperglycemia after it happens. She has type 1 diabetes and makes no insulin of her own. She needs basal.",
+        stop_now: "Glucose under 200 is when dextrose goes up, not when insulin comes off.",
+        discharge: "She came in because she couldn't get insulin. Discharging her without fixing that is discharging her back into this.",
+      },
+      rep: { who: "pharmacy", points: 3 },
+      onRight: [
+        [
+          "That's a real plan. I'll get the glargine up now and we'll pull the drip in two hours.",
+          "Nice to get one of these where I don't have to argue.",
+        ],
+      ],
+      onWrong: [
+        [
+          "I'm going to hold the stop order until we've got a basal on board.",
+          "Long-acting first, overlap an hour or two, gap closed, and she has to be eating. Otherwise she's back on my pump by lunchtime.",
+        ],
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    /* Why she was here at all                                           */
+    /* ---------------------------------------------------------------- */
+
+    {
+      kind: "say",
+      id: "b24",
+      speaker: "marisol",
+      say: [
+        [
+          "Can I ask something. Am I in trouble?",
+          "The nurse last night asked why I stopped taking it and I said I ran out, and she wrote something down.",
+        ],
+        "I wasn't being careless. It was three hundred and forty dollars.",
+      ],
+    },
+
+    {
+      kind: "selectAll",
+      id: "b25",
+      speaker: "marisol",
+      tier: "core",
+      domain: "guidelines",
+      say: ["What happens now? I still can't afford it next month."],
+      choices: [
+        { id: "cost", text: "Get her onto a manufacturer assistance or affordability programme before discharge" },
+        { id: "sickday", text: "Sick day rules — never stop basal insulin, even when she can't eat" },
+        { id: "ketones", text: "A home blood ketone meter and when to use it" },
+        { id: "endo", text: "Endocrinology follow-up within two weeks" },
+        { id: "social", text: "Social work consult before she leaves" },
+        { id: "educate", text: "Reinforce that she must not miss doses in future" },
+        { id: "increase", text: "Increase her glargine dose to give her more margin" },
+        { id: "sooner", text: "Advise her to come to the ED sooner next time" },
+        { id: "pump", text: "Start the process of switching her to an insulin pump" },
+        { id: "metformin", text: "Add metformin to reduce her insulin requirement" },
+      ],
+      correct: ["cost", "sickday", "ketones", "endo", "social"],
+      cost: {
+        metformin: "harmful",
+        increase: "harmful",
+        educate: "wasteful",
+        sooner: "wasteful",
+        pump: "defensible",
+      },
+      why: {
+        cost: "She didn't have a knowledge problem. She had a three-hundred-and-forty-dollar problem, and it is the only thing here that actually prevents the next admission.",
+        educate:
+          "She knows. She told you she knows. Educating someone about a barrier that isn't knowledge is how you make a patient feel blamed for something they can't control.",
+        sooner: "She came in when her roommate could drive her. Earlier presentation doesn't address why she ran out.",
+        increase: "More insulin she can't afford is less insulin, not more.",
+        metformin: "She has type 1 diabetes. Metformin doesn't replace the insulin she isn't making, and it isn't indicated here.",
+        pump: "Reasonable eventually. Not a plan for someone who can't fund a vial of glargine.",
+      },
+      rep: { who: "marisol", points: 3 },
+      onRight: [
+        [
+          "So — someone can actually help with the cost part?",
+          "I didn't know that was a thing you could ask about.",
+        ],
+      ],
+      onWrong: [
+        "Okay.",
+        "I mean — I'll try. I just don't know how it's going to be different next month.",
+      ],
+    },
+
+    {
+      kind: "say",
+      id: "b26",
+      speaker: "okafor",
+      say: [
+        [
+          "Gap's closed, she's eating, glargine's on board. Good shift.",
+          "One thing before you go home.",
+        ],
+        [
+          "Everything you did tonight — the fluids, the potassium, the drip — that was the easy part. There's a protocol for it and the protocol works.",
+          "She's here because insulin costs money. No protocol fixes that, and she'll be back in six months if nobody deals with it.",
+        ],
+        "Go home. You did well.",
       ],
     },
   ],
