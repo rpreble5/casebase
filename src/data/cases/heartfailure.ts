@@ -307,38 +307,62 @@ export const heartFailureCase: MedicalCase = {
     },
 
     {
-      kind: "mcq",
+      kind: "grid",
       id: "hf8",
       speaker: "okafor",
       tier: "foundation",
       domain: "pathophys",
       say: [
         "While we're on lab interpretation — his BNP came back at {bnp@0}.",
-        "In general, independent of how congested someone actually is, what makes a BNP misleadingly low, and what makes it misleadingly high?",
+        "Before you read anything into that number — for each of these, does it push a BNP up, down, or leave it alone? Independent of how congested the patient actually is.",
       ],
-      choices: [
+      subject: "Effect on BNP, independent of true volume status",
+      rows: [
         {
-          id: "a",
-          text: "Obesity lowers it — adipose tissue clears natriuretic peptides — while renal impairment and atrial fibrillation raise it independent of congestion",
+          id: "obesity",
+          label: "Obesity",
+          correct: "down",
+          why: "Adipose tissue clears and degrades natriuretic peptides. A 'normal' BNP in a large patient doesn't rule out heart failure the way it would in someone thin.",
         },
-        { id: "b", text: "Body habitus and renal function have no meaningful effect on BNP; it purely reflects cardiac wall stress" },
-        { id: "c", text: "Renal impairment lowers BNP, because the failing kidneys produce less of it" },
-        { id: "d", text: "Obesity raises BNP, because the extra weight itself increases cardiac strain" },
+        {
+          id: "renal",
+          label: "Renal impairment",
+          correct: "up",
+          why: "Impaired clearance of natriuretic peptide fragments raises the level independent of cardiac status — read BNP cautiously in chronic kidney disease.",
+        },
+        {
+          id: "afib",
+          label: "New atrial fibrillation",
+          correct: "up",
+          why: "Atrial stretch and rate themselves drive release. An arrhythmia alone can raise BNP with no change in volume status.",
+        },
+        {
+          id: "age",
+          label: "Advanced age",
+          correct: "up",
+          why: "Levels drift upward with age independent of cardiac disease, which is why some assays use age-adjusted cutoffs.",
+        },
+        {
+          id: "sepsis",
+          label: "Sepsis or critical illness",
+          correct: "up",
+          why: "BNP isn't cardiac-specific. Systemic illness can raise it meaningfully with no primary heart disease at all.",
+        },
+        {
+          id: "htn",
+          label: "Well-controlled hypertension, no hypertrophy",
+          correct: "same",
+          why: "Chronic, compensated, structurally unremarkable hypertension isn't on its own a reason for the number to move. Not everything that sounds cardiac actually moves it.",
+        },
       ],
-      correct: "a",
-      why: {
-        b: "It's a genuinely common trap — a single BNP gets treated as a verdict when it needs to be read in context.",
-        c: "Backwards. The kidneys clear natriuretic peptide fragments; impaired clearance raises the level, it doesn't lower it.",
-        d: "The mechanism runs the other way for the BNP value itself, even though the cardiac strain claim sounds intuitive.",
-      },
-      rep: { who: "okafor", points: 2 },
+      rep: { who: "okafor", points: 3 },
       onRight: [
-        "Right. A number this high in someone this size is about as unambiguous as BNP gets. It won't always be this easy to read.",
+        "Right across the board. A number this high in someone this size is about as unambiguous as BNP gets. It won't always be this easy to read.",
       ],
       onWrong: [
         [
-          "Obesity lowers BNP — adipose tissue clears it — so a normal BNP in a large patient doesn't rule anything out.",
-          "Renal impairment and atrial fibrillation both raise it independent of volume status. His is high enough that none of that ambiguity matters tonight, but it won't always be this clean.",
+          "A few of those aren't quite right, and it's worth being precise, because BNP gets treated as a verdict far more often than it deserves to be.",
+          "His is high enough that none of that ambiguity matters tonight — but it won't always be this clean.",
         ],
       ],
     },

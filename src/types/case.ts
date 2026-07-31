@@ -230,6 +230,34 @@ export interface KeypadBeat extends BeatBase {
   unit?: string;
 }
 
+export type Direction = "up" | "down" | "same";
+
+/**
+ * A grid of factors, each graded on whether it pushes some value up, down, or
+ * leaves it alone.
+ *
+ * The shape a single MCQ can't capture: "obesity lowers BNP, renal failure
+ * raises it, atrial fibrillation raises it too" is one compound statement in an
+ * MCQ, so a resident who has three of four relationships right and one backwards
+ * is marked exactly as wrong as someone with none of them. Grading each factor
+ * independently is both fairer and more diagnostic of what's actually understood.
+ *
+ * Include at least one row whose correct answer is "same" — otherwise a
+ * resident can shotgun "up" on every row and look competent without having
+ * distinguished anything. The "same" row is what makes the others mean something.
+ */
+export interface GridBeat extends BeatBase {
+  kind: "grid";
+  /** What's being pushed up, down, or held steady — shown once above the rows. */
+  subject: string;
+  rows: {
+    id: string;
+    label: string;
+    correct: Direction;
+    why?: string;
+  }[];
+}
+
 /**
  * Agree / push back.
  *
@@ -263,7 +291,8 @@ export type Beat =
   | PickerBeat
   | SliderBeat
   | KeypadBeat
-  | ConfirmBeat;
+  | ConfirmBeat
+  | GridBeat;
 
 export type QuestionBeat = Exclude<Beat, SayBeat | LabsBeat>;
 

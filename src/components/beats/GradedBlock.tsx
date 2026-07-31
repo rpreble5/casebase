@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { useRun, type AnswerRecord } from "../../state/runStore";
-import type { Beat, Choice, PickCost } from "../../types/case";
+import type { Beat, Choice, Direction, PickCost } from "../../types/case";
 import { catalogItem } from "../../data/orderCatalog";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
 import "./GradedBlock.css";
@@ -46,7 +46,7 @@ function Verdict({ beat, answer }: { beat: Beat; answer: AnswerRecord }) {
       ? "Right call, wrong reason"
       : "Not quite";
 
-  const setBeat = beat.kind === "selectAll" || beat.kind === "picker";
+  const setBeat = beat.kind === "selectAll" || beat.kind === "picker" || beat.kind === "grid";
   const total = (answer.hits?.length ?? 0) + (answer.misses?.length ?? 0);
 
   return (
@@ -92,6 +92,9 @@ function Body({ beat, answer }: { beat: Beat; answer: AnswerRecord }) {
 
     case "mcq":
       return <ChoiceList choices={beat.choices} correct={beat.correct} answer={answer} why={beat.why} />;
+
+    case "grid":
+      return <DirectionList rows={beat.rows} answer={answer} />;
 
     case "confirm":
       return (
@@ -242,6 +245,49 @@ function ChoiceList({
               </span>
               {/* Explain the road they took, not every road they didn't. */}
               {st === "add" && why?.[c.id] && <p className="gb__why">{why[c.id]}</p>}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+const DIR_WORD: Record<Direction, string> = { up: "Up", down: "Down", same: "Same" };
+
+/**
+ * Every row is always graded — there's no "quiet, correctly left alone" state
+ * the way select-all has, because every factor gets exactly one required call.
+ * Mirrors ChoiceList's restraint on explanation: only the road actually taken
+ * gets a why, not every row that happened to be right.
+ */
+function DirectionList({
+  rows,
+  answer,
+}: {
+  rows: { id: string; label: string; correct: Direction; why?: string }[];
+  answer: AnswerRecord;
+}) {
+  return (
+    <ul className="gb__rows">
+      {rows.map((r) => {
+        const picked = answer.directions?.[r.id];
+        const isHit = picked === r.correct;
+        return (
+          <li key={r.id} className={`gb__row is-${isHit ? "hit" : "miss"}`}>
+            <span className="gb__icon">
+              {isHit ? <CheckIcon size={15} /> : <CrossIcon size={15} />}
+            </span>
+            <div className="gb__rowbody">
+              <span className="gb__label">
+                {r.label}
+                <em>{isHit ? DIR_WORD[r.correct] : `you said ${picked ? DIR_WORD[picked] : "nothing"}`}</em>
+              </span>
+              {!isHit && (
+                <p className="gb__why">
+                  {DIR_WORD[r.correct]}.{r.why ? ` ${r.why}` : ""}
+                </p>
+              )}
             </div>
           </li>
         );

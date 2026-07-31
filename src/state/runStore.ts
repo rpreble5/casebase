@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type {
   Beat,
+  Direction,
   MedAction,
   MedicalCase,
   PickCost,
@@ -80,6 +81,8 @@ export interface AnswerRecord {
   wrongReason?: boolean;
   /** Medication reconciliation: what you decided for each drug. */
   meds?: Record<string, MedAction>;
+  /** Grid beats: what direction you picked for each row. */
+  directions?: Record<string, Direction>;
 }
 
 /**
@@ -129,6 +132,7 @@ interface RunState {
 export type AnswerPayload =
   | { kind: "choice"; id: string; label: string }
   | { kind: "meds"; meds: Record<string, MedAction> }
+  | { kind: "directions"; picks: Record<string, Direction> }
   | { kind: "set"; ids: string[]; shown: string[] }
   | { kind: "value"; value: number; label: string };
 
@@ -410,6 +414,7 @@ export const useRun = create<RunState>((set, get) => ({
       shown: payload.kind === "set" ? payload.shown : undefined,
       picked: payload.kind === "choice" ? payload.id : undefined,
       meds: payload.kind === "meds" ? payload.meds : undefined,
+      directions: payload.kind === "directions" ? payload.picks : undefined,
       value: payload.kind === "value" ? payload.value : undefined,
       confirmChoice: st.confirmChoice ?? undefined,
       wrongReason,
@@ -539,6 +544,15 @@ function grade(
       return { right: misses.length === 0, hits, misses, harmful };
     }
 
+    case "grid": {
+      if (payload.kind !== "directions") return { right: false };
+      // Every row is independently graded — three of four relationships right
+      // and one backwards is real, partial understanding, not a coin flip.
+      const hits = beat.rows.filter((r) => payload.picks[r.id] === r.correct).map((r) => r.id);
+      const misses = beat.rows.filter((r) => payload.picks[r.id] !== r.correct).map((r) => r.id);
+      return { right: misses.length === 0, hits, misses };
+    }
+
     case "slider": {
       if (payload.kind !== "value") return { right: false };
       const [lo, hi] = beat.accept;
@@ -558,6 +572,7 @@ function grade(
 
 function optionCount(beat: Beat): number | undefined {
   if (beat.kind === "medrec") return beat.meds.length;
+  if (beat.kind === "grid") return beat.rows.length;
   if (beat.kind === "mcq" || beat.kind === "selectAll") return beat.choices.length;
   if (beat.kind === "picker") return beat.show.length;
   if (beat.kind === "confirm") return beat.followUp.choices.length;
@@ -565,6 +580,7 @@ function optionCount(beat: Beat): number | undefined {
 }
 
 function correctCount(beat: Beat): number | undefined {
+  if (beat.kind === "grid") return beat.rows.length;
   if (beat.kind === "selectAll" || beat.kind === "picker") return beat.correct.length;
   if (beat.kind === "mcq" || beat.kind === "confirm") return 1;
   return undefined;

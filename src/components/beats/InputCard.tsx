@@ -7,6 +7,7 @@ import { Avatar } from "../ui/Avatar";
 import { Bubble } from "../Conversation/Bubble";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
 import { MedRecCard } from "./MedRec";
+import { GridCard } from "./DirectionGrid";
 import { Report } from "../Report";
 import { play } from "../../audio/sounds";
 import "./InputCard.css";
@@ -74,6 +75,8 @@ function Input({ beat, phase }: { beat: Beat; phase: string }) {
       );
     case "medrec":
       return <MedRecCard beat={beat} />;
+    case "grid":
+      return <GridCard beat={beat} />;
     case "selectAll":
       return <SetCard beat={beat} />;
     case "picker":
