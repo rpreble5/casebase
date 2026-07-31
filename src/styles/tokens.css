@@ -32,8 +32,11 @@
   --lift: 5px;
 
   /* rhythm */
-  --gutter: 62px;
+  --hd-h: 70px;
+  /* Prose measure — long lines of body text are genuinely harder to read. */
   --col-max: 660px;
+  /* Controls have no reading measure to respect, so they get the wider lane. */
+  --wide-max: 940px;
 
   --ease-pop: cubic-bezier(0.34, 1.4, 0.5, 1);
 }

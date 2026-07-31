@@ -39,6 +39,17 @@ export type Tier = "foundation" | "core" | "bonus";
 
 export type WagerLevel = "sure" | "think" | "unsure";
 
+/**
+ * A line of dialogue.
+ *
+ * A plain string is one bubble. An array is ALSO one bubble, whose paragraphs
+ * arrive one at a time while the box grows to meet them — so a continuous
+ * thought costs one border instead of three. Use a new entry when the speaker
+ * takes a new breath: a line that should land alone, or the question itself
+ * separated from its setup.
+ */
+export type SayLine = string | string[];
+
 /** Reputation is earned per character. Wagered beats scale these. */
 export interface RepAward {
   who: SpeakerId;
@@ -50,8 +61,8 @@ interface BeatBase {
   speaker: SpeakerId;
   tier: Tier;
   domain: Domain;
-  /** The bubble(s) this speaker says before the input appears. */
-  say: string[];
+  /** What this speaker says before the input appears. The last entry is the ask. */
+  say: SayLine[];
   /**
    * When true, the attending asks whether you know it and you stake reputation
    * BEFORE the options are revealed. Only legitimate when `say` fully states the
@@ -66,8 +77,8 @@ interface BeatBase {
    */
   pairs?: string;
   /** Spoken by `speaker` after you answer. This is the teaching. */
-  onRight: string[];
-  onWrong: string[];
+  onRight: SayLine[];
+  onWrong: SayLine[];
 }
 
 /** A line of dialogue or a beat of narration. No input. */
@@ -75,7 +86,7 @@ export interface SayBeat {
   kind: "say";
   id: string;
   speaker: SpeakerId;
-  say: string[];
+  say: SayLine[];
 }
 
 /** Results land: reveals a lab draw into the chart and announces it. */
@@ -84,7 +95,7 @@ export interface LabsBeat {
   id: string;
   /** Index into the case's lab draws. */
   draw: number;
-  say: string[];
+  say: SayLine[];
   speaker: SpeakerId;
 }
 

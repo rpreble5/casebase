@@ -1,22 +1,103 @@
-.ic {
-  margin: 22px 0 8px 52px;
+/**
+ * The stage is bounded to the viewport so the question, the options and the
+ * commit button are always on screen together. Overflow lives inside the
+ * options area rather than pushing the page around.
+ */
+.stage {
+  margin: 22px 0 8px;
   border: var(--bw) solid var(--ink);
   border-radius: var(--r-lg);
   background: var(--paper);
   box-shadow: 0 var(--lift) 0 var(--ink);
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 0;
+  max-height: calc(100dvh - var(--hd-h) - 46px);
+  overflow: hidden;
 }
 
-.ic--row {
+.stage__ask {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Capped so a long setup can never crowd the options out. */
+  max-height: 34%;
+  padding: 16px 20px 14px;
+  border-bottom: 2.5px dashed rgba(38, 42, 68, 0.22);
+}
+
+.stage__who {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+}
+
+.stage__who b {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.stage__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage__lines p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 700;
+  text-wrap: pretty;
+}
+
+.stage__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stage__body--row {
   flex-direction: row;
   gap: 14px;
 }
 
+.stage__body--pad {
+  align-items: center;
+}
+
+.stage__commit {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 20px;
+  border-top: 2.5px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.continue {
+  display: flex;
+  justify-content: flex-end;
+  margin: 14px 0 8px;
+}
+
+.stage--done .stage__body {
+  gap: 10px;
+}
+
 .ic__ask {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
 }
 
@@ -29,6 +110,14 @@
 }
 
 /* ---- wager ---- */
+
+.wager__prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
 
 .ic__wagers {
   display: grid;
@@ -73,24 +162,25 @@
 /* ---- options ---- */
 
 .ic__opts {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  gap: 9px;
 }
 
 .opt {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   width: 100%;
   text-align: left;
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 700;
+  line-height: 1.3;
   color: var(--ink);
-  border: var(--bw) solid var(--ink);
-  border-radius: 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 13px;
   background: var(--paper-deep);
-  padding: 13px 16px;
+  padding: 10px 14px;
   cursor: pointer;
   box-shadow: 0 4px 0 var(--ink);
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
@@ -111,11 +201,11 @@
 }
 
 .opt__box {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   flex: none;
-  border: var(--bw) solid var(--ink);
-  border-radius: 9px;
+  border: 2.5px solid var(--ink);
+  border-radius: 8px;
   background: var(--paper);
   display: grid;
   place-items: center;
@@ -133,10 +223,10 @@
 }
 
 .opt__dot {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   flex: none;
-  border: var(--bw) solid var(--ink);
+  border: 2.5px solid var(--ink);
   border-radius: 50%;
   background: var(--paper);
 }
@@ -144,13 +234,17 @@
 /* ---- order picker ---- */
 
 .ic__groups {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  columns: 2;
+  column-gap: 22px;
+}
+
+.ic__group {
+  break-inside: avoid;
+  margin-bottom: 16px;
 }
 
 .ic__group h4 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.15em;
@@ -159,9 +253,9 @@
 }
 
 .ic__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
 .ord {
@@ -169,13 +263,14 @@
   align-items: center;
   gap: 10px;
   text-align: left;
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.25;
   color: var(--ink);
   border: 2.5px solid var(--ink);
-  border-radius: 12px;
+  border-radius: 11px;
   background: var(--paper-deep);
-  padding: 9px 12px;
+  padding: 8px 11px;
   cursor: pointer;
   box-shadow: 0 3px 0 var(--ink);
   transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
@@ -194,25 +289,10 @@
 }
 
 .ord .opt__box {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   border-width: 2.5px;
   border-radius: 7px;
-}
-
-.ord__name {
-  line-height: 1.25;
-}
-
-/* ---- commit row ---- */
-
-.ic__commit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  border-top: 2.5px dashed rgba(38, 42, 68, 0.2);
-  padding-top: 16px;
 }
 
 .ic__count {
@@ -223,7 +303,7 @@
 }
 
 .ic__go {
-  padding: 13px 26px;
+  padding: 12px 26px;
   font-size: 16px;
   background: var(--sage);
   color: var(--paper);
@@ -234,8 +314,6 @@
   background: #63997f;
 }
 
-/* Both read identically on purpose. Making "Hold on" the loud one would tell the
-   resident an order is wrong before they've looked at it. */
 .ic__confirm {
   flex: 1;
   padding: 16px 20px;
@@ -245,7 +323,7 @@
 /* ---- slider ---- */
 
 .dial__val {
-  font-size: 42px;
+  font-size: 40px;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -264,7 +342,7 @@
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  margin: 22px 0 6px;
+  margin: 20px 0 6px;
   background: transparent;
 }
 
@@ -315,16 +393,12 @@
 
 /* ---- keypad ---- */
 
-.ic--pad {
-  align-items: center;
-}
-
 .pad__readout {
-  font-size: 46px;
+  font-size: 44px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
-  min-height: 52px;
+  min-height: 50px;
 }
 
 .pad__readout em {
@@ -341,15 +415,15 @@
 
 .pad__keys {
   display: grid;
-  grid-template-columns: repeat(3, 74px);
-  gap: 10px;
+  grid-template-columns: repeat(3, 72px);
+  gap: 9px;
 }
 
 .pad__key {
-  height: 58px;
+  height: 54px;
   font-size: 22px;
   font-weight: 800;
-  border-radius: 14px;
+  border-radius: 13px;
   display: grid;
   place-items: center;
   font-variant-numeric: tabular-nums;
@@ -359,97 +433,11 @@
   background: var(--paper-sink);
 }
 
-.pad__go {
-  width: 242px;
-}
-
-/* ---- reveal ---- */
-
-.reveal {
-  background: var(--paper-card);
-}
-
-.reveal--right {
-  border-color: var(--ink);
-  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(111, 168, 143, 0.28);
-}
-
-.reveal--wrong {
-  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(196, 116, 75, 0.28);
-}
-
-.reveal__head {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-}
-
-.reveal__head b {
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.reveal__mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: var(--bw) solid var(--ink);
-  border-radius: 50%;
-  flex: none;
-  color: var(--paper);
-}
-
-.reveal--right .reveal__mark {
-  background: var(--sage);
-}
-.reveal--wrong .reveal__mark {
-  background: var(--clay);
-}
-
-.reveal__wager {
-  margin-left: auto;
-  font-style: normal;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
-.reveal__tally {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink-soft);
-}
-
-.reveal__notes {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.reveal__notes li {
-  font-size: 14.5px;
-  line-height: 1.5;
-  font-weight: 600;
-  padding-left: 14px;
-  border-left: 4px solid var(--ink-faint);
-}
-
-.reveal__notes li.is-bad {
-  border-left-color: var(--clay);
-}
-.reveal__notes li.is-good {
-  border-left-color: var(--sage);
-}
-
-@media (max-width: 900px) {
-  .ic {
-    margin-left: 0;
+@media (max-width: 760px) {
+  .ic__groups {
+    columns: 1;
+  }
+  .ic__opts {
+    grid-template-columns: 1fr;
   }
 }

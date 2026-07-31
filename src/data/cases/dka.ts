@@ -95,8 +95,10 @@ export const dkaCase: MedicalCase = {
       id: "b1",
       speaker: "dani",
       say: [
-        "Bed four. Marisol Reyes, twenty-four, type one diabetic.",
-        "Two days of vomiting, roommate drove her in. Heart rate one twenty-two, pressure ninety-six over fifty-eight, respirations twenty-eight.",
+        [
+          "Bed four. Marisol Reyes, twenty-four, type one diabetic.",
+          "Two days of vomiting, roommate drove her in. Heart rate one twenty-two, pressure ninety-six over fifty-eight, respirations twenty-eight.",
+        ],
         "Her meter just says HI. That's all it says.",
       ],
     },
@@ -105,8 +107,10 @@ export const dkaCase: MedicalCase = {
       id: "b2",
       speaker: "dani",
       say: [
-        "She's breathing deep and fast but she's talking to me and protecting her airway. I've got two large-bore IVs in.",
-        "She told me she ran out of her long-acting three days ago. Aged off her parents' insurance in March.",
+        [
+          "She's breathing deep and fast but she's talking to me and protecting her airway. I've got two large-bore IVs in.",
+          "She told me she ran out of her long-acting three days ago. Aged off her parents' insurance in March.",
+        ],
       ],
     },
 
@@ -154,12 +158,16 @@ export const dkaCase: MedicalCase = {
       },
       rep: { who: "okafor", points: 2 },
       onRight: [
-        "Good. That's a workup, not a shotgun.",
-        "Fluids are running. Let's see what comes back.",
+        [
+          "Good. That's a workup, not a shotgun.",
+          "Fluids are running. Let's see what comes back.",
+        ],
       ],
       onWrong: [
-        "Some of that I'd fight you on.",
-        "Fluids are running either way. Let's see what comes back.",
+        [
+          "Some of that I'd fight you on.",
+          "Fluids are running either way. Let's see what comes back.",
+        ],
       ],
     },
 
@@ -182,12 +190,16 @@ export const dkaCase: MedicalCase = {
       tolerance: 0,
       rep: { who: "okafor", points: 1 },
       onRight: [
-        "Twenty-nine. Sodium one twenty-nine, chloride eighty-eight, bicarb twelve.",
-        "She's in DKA. Glucose over two fifty, gap acidosis, ketones through the roof.",
+        [
+          "Twenty-nine. Sodium one twenty-nine, chloride eighty-eight, bicarb twelve.",
+          "She's in DKA. Glucose over two fifty, gap acidosis, ketones through the roof.",
+        ],
       ],
       onWrong: [
-        "Sodium minus chloride minus bicarbonate. One twenty-nine, minus eighty-eight, minus twelve.",
-        "Twenty-nine. She's in DKA — glucose over two fifty, gap acidosis, ketones through the roof.",
+        [
+          "Sodium minus chloride minus bicarbonate. One twenty-nine, minus eighty-eight, minus twelve.",
+          "Twenty-nine. She's in DKA — glucose over two fifty, gap acidosis, ketones through the roof.",
+        ],
       ],
     },
 
@@ -200,8 +212,10 @@ export const dkaCase: MedicalCase = {
       wager: true,
       say: [
         "Sorry — can I ask something?",
-        "Her gap went up by seventeen. But her bicarbonate only fell by twelve, from twenty-four down to twelve.",
-        "If it were only the ketoacidosis, those should move together, right? So doesn't that mean there's a second thing going on?",
+        [
+          "Her gap went up by seventeen. But her bicarbonate only fell by twelve, from twenty-four down to twelve.",
+          "If it were only the ketoacidosis, those should move together, right? So doesn't that mean there's a second thing going on?",
+        ],
       ],
       choices: [
         { id: "a", text: "Yes — a concurrent metabolic alkalosis, from two days of vomiting" },
@@ -211,18 +225,22 @@ export const dkaCase: MedicalCase = {
       ],
       correct: "a",
       why: {
-        b: "A concurrent non-gap acidosis pushes the ratio below 1 — the bicarbonate would have fallen *more* than the gap rose, not less. That comes later, after she's had several liters of saline.",
+        b: "A concurrent non-gap acidosis pushes the ratio below 1 — the bicarbonate would have fallen further than the gap rose, not less. That comes later, after she's had several liters of saline.",
         c: "In pure DKA the two move roughly together, a ratio near 1. Hers is about 1.4.",
         d: "The chloride is low because she's been vomiting hydrochloric acid for two days. That's the finding, not an error.",
       },
       rep: { who: "ezra", points: 3 },
       onRight: [
-        "Oh. Yeah, that — that's what I was going to say.",
-        "Two days of vomiting. Losing hydrogen and chloride. So the alkalosis is propping her bicarbonate up.",
+        [
+          "Oh. Yeah, that — that's what I was going to say.",
+          "Two days of vomiting. Losing hydrogen and chloride. So the alkalosis is propping her bicarbonate up.",
+        ],
       ],
       onWrong: [
-        "So the delta ratio is about 1.4 — the gap rose more than the bicarbonate fell.",
-        "She's been vomiting hydrochloric acid for two days. There's a metabolic alkalosis underneath propping her bicarbonate up, which means her acidosis is worse than that number looks.",
+        [
+          "So the delta ratio is about 1.4 — the gap rose more than the bicarbonate fell.",
+          "She's been vomiting hydrochloric acid for two days. There's a metabolic alkalosis underneath propping her bicarbonate up, which means her acidosis is worse than that number looks.",
+        ],
       ],
     },
 
@@ -292,8 +310,10 @@ export const dkaCase: MedicalCase = {
       rep: { who: "okafor", points: 1 },
       onRight: ["Point one per kilo per hour. Write it."],
       onWrong: [
-        "Point one units per kilogram per hour. That's the number, and it hasn't changed in twenty years.",
-        "Write it.",
+        [
+          "Point one units per kilogram per hour. That's the number, and it hasn't changed in twenty years.",
+          "Write it.",
+        ],
       ],
     },
 
@@ -327,12 +347,16 @@ export const dkaCase: MedicalCase = {
       },
       rep: { who: "pharmacy", points: 3 },
       onRight: [
-        "That's what I had too. Six point eight an hour, I'll fix it.",
-        "And for what it's worth — whoever typed that wrote it as one-zero-u. That 'u' is on the do-not-use list for exactly this reason. It reads as a hundred.",
+        [
+          "That's what I had too. Six point eight an hour, I'll fix it.",
+          "And for what it's worth — whoever typed that wrote it as one-zero-u. That 'u' is on the do-not-use list for exactly this reason. It reads as a hundred.",
+        ],
       ],
       onWrong: [
-        "I'm going to push back on that one. She's sixty-eight kilos, so point one per kilo is six point eight an hour, not ten.",
-        "Also — that order was written as one-zero-u. The 'u' abbreviation is on the do-not-use list because it reads as a hundred. I'll get it rewritten.",
+        [
+          "I'm going to push back on that one. She's sixty-eight kilos, so point one per kilo is six point eight an hour, not ten.",
+          "Also — that order was written as one-zero-u. The 'u' abbreviation is on the do-not-use list because it reads as a hundred. I'll get it rewritten.",
+        ],
       ],
     },
 
@@ -342,8 +366,10 @@ export const dkaCase: MedicalCase = {
       draw: 1,
       speaker: "dani",
       say: [
-        "Before you hang that — her repeat chem just came back.",
-        "Potassium's three point one.",
+        [
+          "Before you hang that — her repeat chem just came back.",
+          "Potassium's three point one.",
+        ],
       ],
     },
 
@@ -381,12 +407,16 @@ export const dkaCase: MedicalCase = {
       },
       rep: { who: "dani", points: 3 },
       onRight: [
-        "That's what I thought. I'll get the potassium hung and hold the insulin.",
-        "Forty milliequivalents — I'll run it central, not through the twenty-two in her hand.",
+        [
+          "That's what I thought. I'll get the potassium hung and hold the insulin.",
+          "Forty milliequivalents — I'll run it central, not through the twenty-two in her hand.",
+        ],
       ],
       onWrong: [
-        "I'm going to hold it until you're sure.",
-        "Three point one is below the cutoff. Potassium first, insulin after — I've seen this go badly.",
+        [
+          "I'm going to hold it until you're sure.",
+          "Three point one is below the cutoff. Potassium first, insulin after — I've seen this go badly.",
+        ],
       ],
     },
 
@@ -418,13 +448,17 @@ export const dkaCase: MedicalCase = {
       },
       rep: { who: "okafor", points: 2 },
       onRight: [
-        "Right. And notice what happened — she arrived at five point four and everyone relaxed.",
-        "Her total body potassium was never five point four. It was depleted the whole time. The acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+        [
+          "Right. And notice what happened — she arrived at five point four and everyone relaxed.",
+          "Her total body potassium was never five point four. It was depleted the whole time. The acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+        ],
         "Two liters in, and the truth showed up.",
       ],
       onWrong: [
-        "Insulin drives potassium into cells. That's the whole answer.",
-        "She arrived at five point four and everyone relaxed. But her total body potassium was never five point four — the acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+        [
+          "Insulin drives potassium into cells. That's the whole answer.",
+          "She arrived at five point four and everyone relaxed. But her total body potassium was never five point four — the acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+        ],
         "Two liters in, and the truth showed up.",
       ],
     },
@@ -434,8 +468,10 @@ export const dkaCase: MedicalCase = {
       id: "b13",
       speaker: "okafor",
       say: [
-        "Alright. Potassium's going in, fluids are running, insulin waits.",
-        "Go see her. She's been lying there for an hour listening to us talk about her, and nobody's told her anything.",
+        [
+          "Alright. Potassium's going in, fluids are running, insulin waits.",
+          "Go see her. She's been lying there for an hour listening to us talk about her, and nobody's told her anything.",
+        ],
       ],
     },
   ],

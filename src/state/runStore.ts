@@ -3,6 +3,7 @@ import type {
   Beat,
   MedicalCase,
   PickCost,
+  SayLine,
   SpeakerId,
   WagerLevel,
 } from "../types/case";
@@ -16,11 +17,38 @@ import { play } from "../audio/sounds";
 /* Feed — the conversation transcript                                   */
 /* ------------------------------------------------------------------ */
 
+export interface BubbleItem {
+  key: string;
+  type: "bubble";
+  speaker: SpeakerId;
+  /** Paragraphs land one at a time and the box grows to meet them. */
+  paras: string[];
+  leads: boolean;
+}
+
 export type FeedItem =
-  | { key: string; type: "bubble"; speaker: SpeakerId; text: string; leads: boolean }
+  | BubbleItem
   | { key: string; type: "answer"; text: string }
   | { key: string; type: "note"; text: string }
-  | { key: string; type: "rep"; who: SpeakerId; delta: number };
+  | { key: string; type: "rep"; who: SpeakerId; delta: number }
+  /** The graded option list. Stays in the transcript as the record of what you did. */
+  | { key: string; type: "graded"; beatId: string };
+
+/** One step of the dialogue queue. Consumed by tick() on a timer. */
+type PendingOp =
+  | { kind: "bubble"; speaker: SpeakerId; text: string; leads: boolean; ask: boolean }
+  | { kind: "para"; text: string; ask: boolean }
+  | { kind: "note"; text: string };
+
+/**
+ * The question currently being asked, held out of the feed so the layout can
+ * bound it together with the input and guarantee both stay on screen. Pushed
+ * into the transcript once answered.
+ */
+export interface ActiveAsk {
+  speaker: SpeakerId;
+  paras: string[];
+}
 
 /* ------------------------------------------------------------------ */
 /* Answers                                                              */
@@ -35,8 +63,14 @@ export interface AnswerRecord {
   misses?: string[];
   wrongAdds?: string[];
   harmful?: string[];
+  /** Everything you were shown, so the graded list can render without re-deriving. */
+  shown?: string[];
   /** Which single choice was taken, on mcq / confirm follow-ups. */
   picked?: string;
+  /** Numeric beats: what you entered. */
+  value?: number;
+  /** Which way a read-back went. */
+  confirmChoice?: "affirm" | "deny";
   /** Right action, wrong reason — only meaningful on a beat that `pairs` another. */
   wrongReason?: boolean;
 }
@@ -60,17 +94,16 @@ interface RunState {
   caseData: MedicalCase | null;
   cursor: number;
   feed: FeedItem[];
-  pending: FeedItem[];
+  pending: PendingOp[];
+  activeAsk: ActiveAsk | null;
   phase: Phase;
   answers: Record<string, AnswerRecord>;
   reputation: Record<string, number>;
   revealedDraws: number;
   orders: string[];
   wager: WagerLevel | null;
-  /** Held between the confirm answer and its follow-up. */
   confirmChoice: "affirm" | "deny" | null;
   beatStartedAt: number;
-  lastRight: boolean | null;
 
   begin: (c: MedicalCase, opts?: { fresh?: boolean }) => void;
   tick: () => void;
@@ -84,7 +117,7 @@ interface RunState {
 
 export type AnswerPayload =
   | { kind: "choice"; id: string; label: string }
-  | { kind: "set"; ids: string[] }
+  | { kind: "set"; ids: string[]; shown: string[] }
   | { kind: "value"; value: number; label: string };
 
 let seq = 0;
@@ -92,17 +125,43 @@ const key = () => `f${seq++}`;
 
 const SAVE_KEY = "casebase:run";
 
-function bubbles(beat: { speaker: SpeakerId; say: string[] }, feedTail?: FeedItem): FeedItem[] {
-  const prev = feedTail && feedTail.type === "bubble" ? feedTail.speaker : null;
-  return beat.say.map((text, i) => ({
-    key: key(),
-    type: "bubble" as const,
-    speaker: beat.speaker,
-    text,
-    // Avatar shows only when the speaker changes. Four lines from Okafor is one
-    // avatar and three bare bubbles, which makes an interruption land hard.
-    leads: i === 0 && beat.speaker !== prev,
-  }));
+/**
+ * Turns authored dialogue into queue operations.
+ *
+ * A string entry opens a bubble. An array entry opens a bubble and then appends
+ * its remaining paragraphs to that same bubble, so one continuous thought costs
+ * one border instead of three.
+ */
+function toOps(
+  say: SayLine[],
+  speaker: SpeakerId,
+  prevSpeaker: SpeakerId | null,
+  /** Hold the final entry out of the feed as the active ask. */
+  lastIsAsk: boolean
+): PendingOp[] {
+  const ops: PendingOp[] = [];
+  say.forEach((entry, i) => {
+    const ask = lastIsAsk && i === say.length - 1;
+    const paras = typeof entry === "string" ? [entry] : entry;
+    ops.push({
+      kind: "bubble",
+      speaker,
+      text: paras[0],
+      // Avatar shows only when the speaker changes. Four lines from Okafor is
+      // one avatar and three bare bubbles, which makes an interruption land hard.
+      leads: i === 0 && speaker !== prevSpeaker,
+      ask,
+    });
+    for (const p of paras.slice(1)) ops.push({ kind: "para", text: p, ask });
+  });
+  return ops;
+}
+
+function lastSpeaker(feed: FeedItem[]): SpeakerId | null {
+  for (let i = feed.length - 1; i >= 0; i--) {
+    if (feed[i].type === "bubble") return (feed[i] as BubbleItem).speaker;
+  }
+  return null;
 }
 
 function emptyRep(): Record<string, number> {
@@ -114,6 +173,7 @@ export const useRun = create<RunState>((set, get) => ({
   cursor: 0,
   feed: [],
   pending: [],
+  activeAsk: null,
   phase: "playing",
   answers: {},
   reputation: emptyRep(),
@@ -122,57 +182,74 @@ export const useRun = create<RunState>((set, get) => ({
   wager: null,
   confirmChoice: null,
   beatStartedAt: Date.now(),
-  lastRight: null,
 
-  begin: (c, opts) => {
-    const saved = opts?.fresh ? null : adapter.load<Partial<RunState>>(SAVE_KEY);
-    if (saved && saved.caseData === undefined && (saved as { caseId?: string }).caseId === c.id) {
-      // Resume: the feed and cursor are restored, the case body is not persisted.
-      set({
-        caseData: c,
-        cursor: saved.cursor ?? 0,
-        feed: saved.feed ?? [],
-        pending: [],
-        phase: "playing",
-        answers: saved.answers ?? {},
-        reputation: { ...emptyRep(), ...(saved.reputation ?? {}) },
-        revealedDraws: saved.revealedDraws ?? 0,
-        orders: saved.orders ?? [],
-        wager: null,
-        confirmChoice: null,
-        beatStartedAt: Date.now(),
-        lastRight: null,
-      });
-    } else {
-      set({
-        caseData: c,
-        cursor: 0,
-        feed: [],
-        pending: [],
-        phase: "playing",
-        answers: {},
-        reputation: emptyRep(),
-        revealedDraws: 0,
-        orders: [],
-        wager: null,
-        confirmChoice: null,
-        beatStartedAt: Date.now(),
-        lastRight: null,
-      });
-    }
+  begin: (c) => {
+    set({
+      caseData: c,
+      cursor: 0,
+      feed: [],
+      pending: [],
+      activeAsk: null,
+      phase: "playing",
+      answers: {},
+      reputation: emptyRep(),
+      revealedDraws: 0,
+      orders: [],
+      wager: null,
+      confirmChoice: null,
+      beatStartedAt: Date.now(),
+    });
     get().pump();
   },
 
-  /** Moves one queued line into the visible feed. Drives the conversational pace. */
+  /** Moves one queued operation into view. Drives the conversational pace. */
   tick: () => {
-    const { pending, feed, phase } = get();
-    if (pending.length > 0) {
-      const [head, ...rest] = pending;
-      if (head.type === "bubble") play("bubble");
-      set({ feed: [...feed, head], pending: rest });
+    const st = get();
+    if (st.pending.length === 0) {
+      if (st.phase === "playing") get().pump();
       return;
     }
-    if (phase === "playing") get().pump();
+    const [op, ...rest] = st.pending;
+
+    if (op.kind === "note") {
+      set({ feed: [...st.feed, { key: key(), type: "note", text: op.text }], pending: rest });
+      return;
+    }
+
+    if (op.kind === "bubble") {
+      play("bubble");
+      if (op.ask) {
+        set({ activeAsk: { speaker: op.speaker, paras: [op.text] }, pending: rest });
+      } else {
+        set({
+          feed: [
+            ...st.feed,
+            { key: key(), type: "bubble", speaker: op.speaker, paras: [op.text], leads: op.leads },
+          ],
+          pending: rest,
+        });
+      }
+      return;
+    }
+
+    // para — grow the bubble it belongs to
+    play("bubble");
+    if (op.ask && st.activeAsk) {
+      set({
+        activeAsk: { ...st.activeAsk, paras: [...st.activeAsk.paras, op.text] },
+        pending: rest,
+      });
+      return;
+    }
+    const feed = [...st.feed];
+    for (let i = feed.length - 1; i >= 0; i--) {
+      if (feed[i].type === "bubble") {
+        const b = feed[i] as BubbleItem;
+        feed[i] = { ...b, paras: [...b.paras, op.text] };
+        break;
+      }
+    }
+    set({ feed, pending: rest });
   },
 
   /** Consumes beats until something needs the resident. */
@@ -186,21 +263,23 @@ export const useRun = create<RunState>((set, get) => ({
     }
 
     const beat = c.beats[st.cursor];
-    const tail = st.feed[st.feed.length - 1];
+    const prev = lastSpeaker(st.feed);
 
     if (beat.kind === "say") {
-      set({ pending: bubbles(beat, tail), cursor: st.cursor + 1, phase: "playing" });
+      set({ pending: toOps(beat.say, beat.speaker, prev, false), cursor: st.cursor + 1, phase: "playing" });
       return;
     }
 
     if (beat.kind === "labs") {
       play("resultsIn");
-      const lines: FeedItem[] =
+      const ops: PendingOp[] =
         beat.speaker === "system"
-          ? beat.say.map((t) => ({ key: key(), type: "note" as const, text: t }))
-          : bubbles({ speaker: beat.speaker, say: beat.say }, tail);
+          ? beat.say.flatMap((e) =>
+              (typeof e === "string" ? [e] : e).map((t) => ({ kind: "note" as const, text: t }))
+            )
+          : toOps(beat.say, beat.speaker, prev, false);
       set({
-        pending: lines,
+        pending: ops,
         cursor: st.cursor + 1,
         phase: "playing",
         revealedDraws: Math.max(st.revealedDraws, beat.draw + 1),
@@ -208,22 +287,8 @@ export const useRun = create<RunState>((set, get) => ({
       return;
     }
 
-    // A question: say the setup, then wait.
-    const setup = bubbles(beat, tail);
-    if (beat.wager) {
-      // The wager is always Okafor's line, whoever asked the question. It doubles
-      // as the difficulty cue — when he asks whether you know it, you're in deep
-      // water, and no "HARD" badge is needed.
-      setup.push({
-        key: key(),
-        type: "bubble",
-        speaker: "okafor",
-        text: "Hm. Good question, actually. — You know this one?",
-        leads: beat.speaker !== "okafor",
-      });
-    }
     set({
-      pending: setup,
+      pending: toOps(beat.say, beat.speaker, prev, true),
       phase: beat.wager ? "wager" : "input",
       wager: null,
       confirmChoice: null,
@@ -233,13 +298,11 @@ export const useRun = create<RunState>((set, get) => ({
 
   setWager: (w) => {
     play("wager");
-    const st = get();
-    const label =
-      w === "sure" ? "I've got this" : w === "think" ? "I think so" : "Not sure";
+    const label = w === "sure" ? "I've got this" : w === "think" ? "I think so" : "Not sure";
     set({
       wager: w,
       phase: "input",
-      feed: [...st.feed, { key: key(), type: "answer", text: label }],
+      feed: [...get().feed, { key: key(), type: "answer", text: label }],
       beatStartedAt: Date.now(),
     });
   },
@@ -251,19 +314,22 @@ export const useRun = create<RunState>((set, get) => ({
     const beat = c.beats[st.cursor];
     if (beat.kind !== "confirm") return;
     play("commit");
-    const label = choice === "affirm" ? beat.affirmLabel : beat.denyLabel;
+    const feed = [...st.feed];
+    if (st.activeAsk) {
+      feed.push({ key: key(), type: "bubble", ...st.activeAsk, leads: false });
+    }
+    feed.push({
+      key: key(),
+      type: "answer",
+      text: choice === "affirm" ? beat.affirmLabel : beat.denyLabel,
+    });
     set({
       confirmChoice: choice,
       phase: "followUp",
-      feed: [...st.feed, { key: key(), type: "answer", text: label }],
+      feed,
+      activeAsk: null,
       pending: [
-        {
-          key: key(),
-          type: "bubble",
-          speaker: beat.speaker,
-          text: beat.followUp.prompt,
-          leads: false,
-        },
+        { kind: "bubble", speaker: beat.speaker, text: beat.followUp.prompt, leads: false, ask: true },
       ],
     });
   },
@@ -288,22 +354,21 @@ export const useRun = create<RunState>((set, get) => ({
     const rep = { ...st.reputation };
     const who = beat.rep.who;
     let delta = 0;
-    if (st.wager) {
-      delta = WAGER_TABLE[st.wager][outcome.right ? "right" : "wrong"];
-    } else if (outcome.right) {
-      delta = beat.rep.points;
-    }
+    if (st.wager) delta = WAGER_TABLE[st.wager][outcome.right ? "right" : "wrong"];
+    else if (outcome.right) delta = beat.rep.points;
     if (delta !== 0) rep[who] = (rep[who] ?? 0) + delta;
 
     play(outcome.right ? "right" : "wrong");
     if (outcome.right && beat.speaker === "ezra") play("ezraDeflates");
 
-    const answerLine = payloadLabel(payload);
     const feed: FeedItem[] = [...st.feed];
-    if (answerLine) feed.push({ key: key(), type: "answer", text: answerLine });
+    // The ask rejoins the transcript now that it no longer has to stay pinned.
+    if (st.activeAsk) feed.push({ key: key(), type: "bubble", ...st.activeAsk, leads: false });
+    // The graded list replaces a useless "9 selected" pill.
+    feed.push({ key: key(), type: "graded", beatId: beat.id });
     if (delta !== 0) feed.push({ key: key(), type: "rep", who, delta });
 
-    const record_: AnswerRecord = {
+    const answerRecord: AnswerRecord = {
       beatId: beat.id,
       right: outcome.right,
       wager: st.wager ?? undefined,
@@ -311,7 +376,10 @@ export const useRun = create<RunState>((set, get) => ({
       misses: outcome.misses,
       wrongAdds: outcome.wrongAdds,
       harmful: outcome.harmful,
+      shown: payload.kind === "set" ? payload.shown : undefined,
       picked: payload.kind === "choice" ? payload.id : undefined,
+      value: payload.kind === "value" ? payload.value : undefined,
+      confirmChoice: st.confirmChoice ?? undefined,
       wrongReason,
     };
 
@@ -339,28 +407,23 @@ export const useRun = create<RunState>((set, get) => ({
 
     set({
       feed,
-      answers: { ...st.answers, [beat.id]: record_ },
+      activeAsk: null,
+      answers: { ...st.answers, [beat.id]: answerRecord },
       reputation: rep,
       orders,
       phase: "reveal",
-      lastRight: outcome.right,
-      pending: bubbles(
-        { speaker: beat.speaker, say: outcome.right ? beat.onRight : beat.onWrong },
-        feed[feed.length - 1]
+      pending: toOps(
+        outcome.right ? beat.onRight : beat.onWrong,
+        beat.speaker,
+        lastSpeaker(feed),
+        false
       ),
     });
     persist(get());
   },
 
   next: () => {
-    const st = get();
-    set({
-      cursor: st.cursor + 1,
-      phase: "playing",
-      wager: null,
-      confirmChoice: null,
-      lastRight: null,
-    });
+    set({ cursor: get().cursor + 1, phase: "playing", wager: null, confirmChoice: null });
     get().pump();
     persist(get());
   },
@@ -376,7 +439,6 @@ function persist(st: RunState) {
   adapter.save(SAVE_KEY, {
     caseId: st.caseData?.id,
     cursor: st.cursor,
-    feed: st.feed,
     answers: st.answers,
     reputation: st.reputation,
     revealedDraws: st.revealedDraws,
@@ -415,7 +477,7 @@ function grade(
     case "selectAll":
     case "picker": {
       if (payload.kind !== "set") return { right: false };
-      const correct = beat.correct;
+      const { correct } = beat;
       const picked = payload.ids;
       const hits = correct.filter((id) => picked.includes(id));
       const misses = correct.filter((id) => !picked.includes(id));
@@ -444,16 +506,8 @@ function grade(
   }
 }
 
-function payloadLabel(p: AnswerPayload): string | null {
-  if (p.kind === "choice") return p.label;
-  if (p.kind === "value") return p.label;
-  if (p.kind === "set") return p.ids.length === 0 ? "Nothing" : `${p.ids.length} selected`;
-  return null;
-}
-
 function optionCount(beat: Beat): number | undefined {
-  if (beat.kind === "mcq") return beat.choices.length;
-  if (beat.kind === "selectAll") return beat.choices.length;
+  if (beat.kind === "mcq" || beat.kind === "selectAll") return beat.choices.length;
   if (beat.kind === "picker") return beat.show.length;
   if (beat.kind === "confirm") return beat.followUp.choices.length;
   return undefined;

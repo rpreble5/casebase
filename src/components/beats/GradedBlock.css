@@ -1,0 +1,276 @@
+.gb {
+  margin: 14px 0 4px;
+  border: var(--bw) solid var(--ink);
+  border-radius: var(--r-lg);
+  background: var(--paper-card);
+  box-shadow: 0 var(--lift) 0 var(--ink);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gb--right {
+  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(111, 168, 143, 0.3);
+}
+
+.gb--wrong {
+  box-shadow: 0 var(--lift) 0 var(--ink), inset 0 0 0 3px rgba(196, 116, 75, 0.3);
+}
+
+.gb__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gb__head b {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.gb__mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  flex: none;
+  color: var(--paper);
+}
+
+.gb--right .gb__mark {
+  background: var(--sage);
+}
+.gb--wrong .gb__mark {
+  background: var(--clay);
+}
+
+.gb__tally {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.gb__wager {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ---- rows ---- */
+
+.gb__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.gb__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-radius: 11px;
+  padding: 8px 11px;
+  border: 2.5px solid transparent;
+}
+
+.gb__icon {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  color: var(--paper);
+  margin-top: 1px;
+}
+
+.gb__rowbody {
+  min-width: 0;
+  flex: 1;
+}
+
+.gb__label {
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  display: block;
+}
+
+.gb__label em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-left: 9px;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+/* Explanation sits under the thing it explains. */
+.gb__why {
+  margin: 5px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* Missed — the loudest thing on screen. Omission is the real failure. */
+.gb__row.is-miss {
+  background: rgba(176, 58, 58, 0.09);
+  border-color: var(--abnormal);
+}
+.gb__row.is-miss .gb__icon {
+  background: var(--abnormal);
+  border-color: var(--abnormal);
+}
+.gb__row.is-miss .gb__label em {
+  color: var(--abnormal);
+}
+
+/* Shouldn't have picked it. */
+.gb__row.is-add {
+  background: rgba(196, 116, 75, 0.09);
+}
+.gb__row.is-add .gb__icon {
+  background: var(--clay);
+  border-color: var(--clay);
+}
+.gb__row.is-add .gb__label em {
+  color: var(--clay);
+}
+
+.gb__row.is-harmful {
+  background: rgba(176, 58, 58, 0.12);
+  border-color: var(--abnormal);
+}
+.gb__row.is-harmful .gb__icon {
+  background: var(--abnormal);
+  border-color: var(--abnormal);
+}
+
+/* Got it. */
+.gb__row.is-hit .gb__icon {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+/* Correctly left alone — recedes. No fanfare for a correct rejection. */
+.gb__row.is-quiet {
+  opacity: 0.42;
+}
+.gb__row.is-quiet .gb__icon {
+  border-color: var(--ink-faint);
+  border-width: 2px;
+}
+.gb__row.is-quiet .gb__label {
+  font-weight: 600;
+}
+
+.gb__quiet {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding-left: 11px;
+}
+
+.gb__readback {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.gb__readback .is-hit {
+  color: var(--sage);
+}
+.gb__readback .is-add {
+  color: var(--clay);
+}
+
+/* ---- numeric ---- */
+
+.gb__num {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gb__nums {
+  display: flex;
+  gap: 34px;
+}
+
+.gb__nums span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gb__nums em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.gb__nums b {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.gb__nums b.is-hit {
+  color: var(--sage);
+}
+.gb__nums b.is-add {
+  color: var(--clay);
+}
+
+.gb__track {
+  position: relative;
+  height: 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-deep);
+}
+
+.gb__band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--sage);
+  border-radius: 999px;
+  min-width: 5px;
+}
+
+.gb__pin {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ochre);
+}

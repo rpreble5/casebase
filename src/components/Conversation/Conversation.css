@@ -11,15 +11,25 @@
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 28px 28px 40vh;
+  padding: 24px 28px 60px;
 }
 
+/**
+ * Prose is capped at a reading measure. Controls are not — an option list has no
+ * line length to respect, so the stage and graded blocks break out to the wider
+ * lane and use the space that was sitting empty.
+ */
 .convo__col {
   max-width: var(--col-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
+}
+
+.convo__wide {
+  width: min(var(--wide-max), calc(100vw - 56px));
+  margin-left: calc((var(--col-max) - min(var(--wide-max), 100vw - 56px)) / 2);
 }
 
 .convo__row {
@@ -30,7 +40,7 @@
 
 /* Extra breathing room when a new voice takes over. */
 .convo__row--leads {
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .convo__gutter {
@@ -74,6 +84,13 @@
   background: var(--paper-card);
   box-shadow: 0 var(--lift) 0 var(--ink);
   padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bubble p {
+  margin: 0;
   font-size: 17px;
   line-height: 1.5;
   font-weight: 600;
@@ -82,12 +99,22 @@
 
 .bubble--typing {
   display: inline-flex;
-  gap: 5px;
-  align-items: center;
-  padding: 16px 18px;
+  width: fit-content;
+  padding: 17px 20px;
 }
 
-.bubble--typing span {
+.bubble__dots {
+  display: flex;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  height: 8px;
+}
+
+.dots span {
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -95,10 +122,10 @@
   animation: blip 1.1s infinite ease-in-out;
 }
 
-.bubble--typing span:nth-child(2) {
+.dots span:nth-child(2) {
   animation-delay: 0.15s;
 }
-.bubble--typing span:nth-child(3) {
+.dots span:nth-child(3) {
   animation-delay: 0.3s;
 }
 
@@ -146,7 +173,6 @@
   padding: 4px 14px;
   font-size: 12.5px;
   font-weight: 800;
-  letter-spacing: 0.02em;
 }
 
 .repmark--down {
@@ -156,7 +182,7 @@
 .convo__note {
   display: flex;
   justify-content: center;
-  margin: 16px 0 10px;
+  margin: 14px 0 8px;
 }
 
 .convo__note span {
@@ -168,4 +194,14 @@
   border: 2.5px dashed rgba(38, 42, 68, 0.3);
   border-radius: 999px;
   padding: 6px 18px;
+}
+
+@media (max-width: 900px) {
+  .convo__wide {
+    width: 100%;
+    margin-left: 0;
+  }
+  .convo__scroll {
+    padding: 20px 18px 50px;
+  }
 }

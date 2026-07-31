@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRun } from "../../state/runStore";
 import type { Beat, PickerBeat, SelectAllBeat } from "../../types/case";
 import { catalogItem } from "../../data/orderCatalog";
+import { SPEAKERS } from "../../data/speakers";
+import { Avatar } from "../ui/Avatar";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
 import { play } from "../../audio/sounds";
 import "./InputCard.css";
@@ -13,19 +15,50 @@ const pop = {
   transition: { duration: 0.34, ease: [0.34, 1.4, 0.5, 1] as const },
 };
 
-export function InputCard() {
+/**
+ * The bounded stage.
+ *
+ * Question on top, options scrolling in the middle, commit row fixed at the
+ * bottom, whole thing capped to the viewport. So the ask, the choices, and the
+ * action are guaranteed to be on screen together no matter how long the list
+ * gets — and because the stage can never grow taller than the window, the
+ * auto-scroll stops fighting it.
+ */
+export function Stage() {
   const phase = useRun((s) => s.phase);
   const caseData = useRun((s) => s.caseData);
   const cursor = useRun((s) => s.cursor);
+  const ask = useRun((s) => s.activeAsk);
 
   if (!caseData) return null;
   if (phase === "done") return <DoneCard />;
+  if (phase === "reveal") return <ContinueBar />;
+  if (phase !== "input" && phase !== "wager" && phase !== "followUp") return null;
 
   const beat = caseData.beats[cursor];
-  if (!beat) return null;
+  if (!beat || !ask) return null;
 
+  return (
+    <motion.section className="stage" {...pop}>
+      <header className="stage__ask">
+        <div className="stage__who">
+          <Avatar id={ask.speaker} size={30} />
+          <b>{SPEAKERS[ask.speaker].name}</b>
+        </div>
+        <div className="stage__lines">
+          {ask.paras.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </div>
+      </header>
+      <Input beat={beat} phase={phase} />
+    </motion.section>
+  );
+}
+
+function Input({ beat, phase }: { beat: Beat; phase: string }) {
   if (phase === "wager") return <WagerCard />;
-  if (phase === "reveal") return <RevealCard beat={beat} />;
+
   if (phase === "followUp" && beat.kind === "confirm") {
     return (
       <ChoiceCard
@@ -34,7 +67,6 @@ export function InputCard() {
       />
     );
   }
-  if (phase !== "input") return null;
 
   switch (beat.kind) {
     case "mcq":
@@ -54,7 +86,9 @@ export function InputCard() {
       return <KeypadCard beat={beat} />;
     case "confirm":
       return (
-        <motion.div className="ic ic--row" {...pop}>
+        <div className="stage__body stage__body--row">
+          {/* Both read identically on purpose. Making "Hold on" the loud one would
+              tell the resident an order is wrong before they've looked at it. */}
           <button
             className="chunk ic__confirm"
             onClick={() => {
@@ -73,7 +107,7 @@ export function InputCard() {
           >
             {beat.denyLabel}
           </button>
-        </motion.div>
+        </div>
       );
     default:
       return null;
@@ -87,7 +121,11 @@ export function InputCard() {
 function WagerCard() {
   const setWager = useRun((s) => s.setWager);
   return (
-    <motion.div className="ic" {...pop}>
+    <div className="stage__body">
+      <div className="wager__prompt">
+        <Avatar id="okafor" size={26} />
+        <span>“You know this one?”</span>
+      </div>
       <div className="ic__wagers">
         <button className="chunk wager wager--sure" onClick={() => setWager("sure")}>
           <b>I've got this</b>
@@ -103,7 +141,7 @@ function WagerCard() {
         </button>
       </div>
       <p className="ic__hint">You'll still answer either way — you're only setting the stakes.</p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -119,7 +157,7 @@ function ChoiceCard({
   onPick: (id: string, label: string) => void;
 }) {
   return (
-    <motion.div className="ic" {...pop}>
+    <div className="stage__body">
       <div className="ic__opts">
         {choices.map((c) => (
           <button
@@ -135,7 +173,7 @@ function ChoiceCard({
           </button>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -143,31 +181,55 @@ function ChoiceCard({
 /* Select all — the count is never shown                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Short labels tolerate columns; long ones read badly squeezed. Thresholds are
+ * generous because the wide lane gives each column ~440px — a 50-character
+ * label still sits on one line there.
+ */
+function columnsFor(labels: string[]) {
+  const longest = labels.reduce((m, l) => Math.max(m, l.length), 0);
+  if (longest <= 30) return 3;
+  if (longest <= 56) return 2;
+  return 1;
+}
+
 function SetCard({ beat }: { beat: SelectAllBeat }) {
   const [picked, setPicked] = useState<string[]>([]);
+  const cols = useMemo(() => columnsFor(beat.choices.map((c) => c.text)), [beat.choices]);
   const toggle = (id: string) => {
     play(picked.includes(id) ? "deselect" : "select");
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   };
   return (
-    <motion.div className="ic" {...pop}>
-      <div className="ic__opts">
-        {beat.choices.map((c) => (
-          <button
-            key={c.id}
-            className="opt"
-            aria-pressed={picked.includes(c.id)}
-            onClick={() => toggle(c.id)}
-          >
-            <span className="opt__box">
-              <CheckIcon />
-            </span>
-            <span>{c.text}</span>
-          </button>
-        ))}
+    <>
+      <div className="stage__body">
+        <div className="ic__opts" style={{ "--cols": cols } as React.CSSProperties}>
+          {beat.choices.map((c) => (
+            <button
+              key={c.id}
+              className="opt"
+              aria-pressed={picked.includes(c.id)}
+              onClick={() => toggle(c.id)}
+            >
+              <span className="opt__box">
+                <CheckIcon />
+              </span>
+              <span>{c.text}</span>
+            </button>
+          ))}
+        </div>
       </div>
-      <Commit count={picked.length} onCommit={() => useRun.getState().answer({ kind: "set", ids: picked })} />
-    </motion.div>
+      <Commit
+        count={picked.length}
+        onCommit={() =>
+          useRun.getState().answer({
+            kind: "set",
+            ids: picked,
+            shown: beat.choices.map((c) => c.id),
+          })
+        }
+      />
+    </>
   );
 }
 
@@ -199,35 +261,41 @@ function PickerCard({ beat }: { beat: PickerBeat }) {
   };
 
   return (
-    <motion.div className="ic" {...pop}>
-      <div className="ic__groups">
-        {groups.map((g) => (
-          <div key={g.name} className="ic__group">
-            {g.name && <h4>{g.name}</h4>}
-            <div className="ic__grid">
-              {g.items.map((it) => (
-                <button
-                  key={it.id}
-                  className="ord"
-                  aria-pressed={picked.includes(it.id)}
-                  onClick={() => toggle(it.id)}
-                >
-                  <span className="opt__box">
-                    <CheckIcon size={16} />
-                  </span>
-                  <span className="ord__name">{it.name}</span>
-                </button>
-              ))}
+    <>
+      <div className="stage__body">
+        {/* Categories flow into columns rather than stacking, so a 22-item list
+            is roughly a third the height it used to be. */}
+        <div className="ic__groups">
+          {groups.map((g) => (
+            <div key={g.name} className="ic__group">
+              {g.name && <h4>{g.name}</h4>}
+              <div className="ic__grid">
+                {g.items.map((it) => (
+                  <button
+                    key={it.id}
+                    className="ord"
+                    aria-pressed={picked.includes(it.id)}
+                    onClick={() => toggle(it.id)}
+                  >
+                    <span className="opt__box">
+                      <CheckIcon size={16} />
+                    </span>
+                    <span className="ord__name">{it.name}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       <Commit
         count={picked.length}
         label="Place orders"
-        onCommit={() => useRun.getState().answer({ kind: "set", ids: picked })}
+        onCommit={() =>
+          useRun.getState().answer({ kind: "set", ids: picked, shown: beat.show })
+        }
       />
-    </motion.div>
+    </>
   );
 }
 
@@ -241,7 +309,7 @@ function Commit({
   label?: string;
 }) {
   return (
-    <div className="ic__commit">
+    <div className="stage__commit">
       {/* Deliberately never "3 of 5" — knowing the count is a different, easier question. */}
       <span className="ic__count">{count} selected</span>
       <button
@@ -267,30 +335,32 @@ function SliderCard({ beat }: { beat: Extract<Beat, { kind: "slider" }> }) {
   const d = beat.decimals ?? 2;
   const derived = beat.derived ? (v * beat.derived.perUnit).toFixed(beat.derived.decimals) : null;
   return (
-    <motion.div className="ic" {...pop}>
-      <div className="dial">
-        <div className="dial__val">
-          {v.toFixed(d)}
-          <span>
-            {beat.unit}
-            {derived && ` · ${derived} ${beat.derived!.label}`}
-          </span>
-        </div>
-        <input
-          type="range"
-          min={beat.min}
-          max={beat.max}
-          step={beat.step}
-          value={v}
-          aria-label={beat.unit}
-          onChange={(e) => setV(Number(e.target.value))}
-        />
-        <div className="dial__ticks">
-          <span>{beat.min.toFixed(d)}</span>
-          <span>{beat.max.toFixed(d)}</span>
+    <>
+      <div className="stage__body">
+        <div className="dial">
+          <div className="dial__val">
+            {v.toFixed(d)}
+            <span>
+              {beat.unit}
+              {derived && ` · ${derived} ${beat.derived!.label}`}
+            </span>
+          </div>
+          <input
+            type="range"
+            min={beat.min}
+            max={beat.max}
+            step={beat.step}
+            value={v}
+            aria-label={beat.unit}
+            onChange={(e) => setV(Number(e.target.value))}
+          />
+          <div className="dial__ticks">
+            <span>{beat.min.toFixed(d)}</span>
+            <span>{beat.max.toFixed(d)}</span>
+          </div>
         </div>
       </div>
-      <div className="ic__commit">
+      <div className="stage__commit">
         <span />
         <button
           className="chunk ic__go"
@@ -306,7 +376,7 @@ function SliderCard({ beat }: { beat: Extract<Beat, { kind: "slider" }> }) {
           Write it
         </button>
       </div>
-    </motion.div>
+    </>
   );
 }
 
@@ -317,117 +387,87 @@ function KeypadCard({ beat }: { beat: Extract<Beat, { kind: "keypad" }> }) {
     setS((p) => (p.length < 6 ? p + ch : p));
   };
   return (
-    <motion.div className="ic ic--pad" {...pop}>
-      {/* No range shown, no slider: a control that hints at the magnitude would
-          leak the answer on an arithmetic question. */}
-      <div className="pad__readout">
-        {s || <em>—</em>}
-        {beat.unit && s && <span>{beat.unit}</span>}
-      </div>
-      <div className="pad__keys">
-        {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0"].map((k) => (
-          <button key={k} className="chunk pad__key" onClick={() => push(k)}>
-            {k}
+    <>
+      <div className="stage__body stage__body--pad">
+        {/* No range shown, no slider: a control that hints at the magnitude would
+            leak the answer on an arithmetic question. */}
+        <div className="pad__readout">
+          {s || <em>—</em>}
+          {beat.unit && s && <span>{beat.unit}</span>}
+        </div>
+        <div className="pad__keys">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0"].map((k) => (
+            <button key={k} className="chunk pad__key" onClick={() => push(k)}>
+              {k}
+            </button>
+          ))}
+          <button
+            className="chunk pad__key pad__key--del"
+            aria-label="Delete"
+            onClick={() => {
+              play("tap");
+              setS((p) => p.slice(0, -1));
+            }}
+          >
+            <CrossIcon size={20} />
           </button>
-        ))}
-        <button className="chunk pad__key pad__key--del" onClick={() => { play("tap"); setS((p) => p.slice(0, -1)); }}>
-          <CrossIcon size={20} />
+        </div>
+      </div>
+      <div className="stage__commit">
+        <span />
+        <button
+          className="chunk ic__go"
+          disabled={s === "" || Number.isNaN(Number(s))}
+          onClick={() => {
+            play("commit");
+            useRun.getState().answer({ kind: "value", value: Number(s), label: s });
+          }}
+        >
+          Answer
         </button>
       </div>
-      <button
-        className="chunk ic__go pad__go"
-        disabled={s === "" || Number.isNaN(Number(s))}
-        onClick={() => {
-          play("commit");
-          useRun.getState().answer({ kind: "value", value: Number(s), label: s });
-        }}
-      >
-        Answer
-      </button>
-    </motion.div>
+    </>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Reveal                                                               */
-/* ------------------------------------------------------------------ */
 
-function RevealCard({ beat }: { beat: Beat }) {
-  const answers = useRun((s) => s.answers);
+function ContinueBar() {
   const next = useRun((s) => s.next);
-  if (beat.kind === "say" || beat.kind === "labs") return null;
-  const a = answers[beat.id];
-  if (!a) return null;
-
-  const why = "why" in beat ? beat.why : undefined;
-  const notes: { id: string; text: string; tone: "good" | "bad" }[] = [];
-
-  if (a.misses?.length && why) {
-    for (const id of a.misses) if (why[id]) notes.push({ id, text: why[id], tone: "bad" });
-  }
-  if (a.wrongAdds?.length && why) {
-    for (const id of a.wrongAdds) if (why[id]) notes.push({ id, text: why[id], tone: "bad" });
-  }
-  if (a.right && a.hits?.length && why) {
-    for (const id of a.hits) if (why[id]) notes.push({ id, text: why[id], tone: "good" });
-  }
-  // Explain the specific road they went down — not every road they didn't take.
-  if (!a.right && a.picked) {
-    const single =
-      beat.kind === "mcq" ? beat.why?.[a.picked] : beat.kind === "confirm" ? beat.followUp.why?.[a.picked] : undefined;
-    if (single) notes.push({ id: a.picked, text: single, tone: "bad" });
-  }
-
   return (
-    <motion.div className={`ic reveal ${a.right ? "reveal--right" : "reveal--wrong"}`} {...pop}>
-      <div className="reveal__head">
-        <span className="reveal__mark">{a.right ? <CheckIcon size={22} /> : <CrossIcon size={22} />}</span>
-        <b>{a.right ? "Right" : a.wrongReason ? "Right call, wrong reason" : "Not quite"}</b>
-        {a.wager && <em className="reveal__wager">staked: {a.wager}</em>}
-      </div>
-
-      {(a.misses?.length || a.wrongAdds?.length) && (
-        <p className="reveal__tally">
-          {a.hits?.length ?? 0} of {(a.hits?.length ?? 0) + (a.misses?.length ?? 0)} right
-          {a.misses?.length ? `, missed ${a.misses.length}` : ""}
-          {a.harmful?.length
-            ? `, and ${a.harmful.length} you added would have hurt her`
-            : a.wrongAdds?.length
-              ? `, ${a.wrongAdds.length} extra`
-              : ""}
-          .
-        </p>
-      )}
-
-      {notes.length > 0 && (
-        <ul className="reveal__notes">
-          {notes.slice(0, 4).map((n) => (
-            <li key={n.id} className={n.tone === "good" ? "is-good" : "is-bad"}>
-              {n.text}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <button className="chunk ic__go" onClick={() => { play("tap"); next(); }}>
-        Continue
-      </button>
-    </motion.div>
+    <AnimatePresence>
+      <motion.div className="continue" {...pop}>
+        <button
+          className="chunk ic__go"
+          onClick={() => {
+            play("tap");
+            next();
+          }}
+        >
+          Continue
+        </button>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
 function DoneCard() {
   const reset = useRun((s) => s.reset);
   return (
-    <motion.div className="ic" {...pop}>
-      <div className="ic__ask">End of the slice.</div>
-      <p className="ic__hint">
-        Beats 14–22 aren't written yet — the dextrose threshold, the gap-versus-glucose beat, the
-        transition off the drip, and Ezra's nitroprusside ambush.
-      </p>
-      <button className="chunk ic__go" onClick={reset}>
-        Run it again
-      </button>
+    <motion.div className="stage stage--done" {...pop}>
+      <div className="stage__body">
+        <b className="ic__ask">End of the slice.</b>
+        <p className="ic__hint">
+          Beats 14–22 aren't written yet — the dextrose threshold, the gap-versus-glucose beat,
+          the transition off the drip, and Ezra's nitroprusside ambush.
+        </p>
+      </div>
+      <div className="stage__commit">
+        <span />
+        <button className="chunk ic__go" onClick={reset}>
+          Run it again
+        </button>
+      </div>
     </motion.div>
   );
 }
