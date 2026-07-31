@@ -182,7 +182,7 @@ export const giBleedCase: MedicalCase = {
           "Three things in that bag together. An anticoagulant, an antiplatelet, and an NSAID.",
           "Nobody prescribed that combination. It assembled itself, one reasonable decision at a time, and not one of those prescribers knew about the naproxen because he bought it at the supermarket.",
         ],
-        "And no acid suppression anywhere. Right — what are you sending?",
+        "And no acid suppression anywhere. Right — let's get to work.",
       ],
     },
 
@@ -192,45 +192,209 @@ export const giBleedCase: MedicalCase = {
       speaker: "okafor",
       tier: "core",
       domain: "diagnosis",
-      say: ["What do you want, and what are you starting?"],
+      say: ["Bloods first. What are you sending?"],
       grouped: true,
       show: [
         "cmp", "lactate", "lft",
         "cbc", "coags", "type_screen", "crossmatch", "fibrinogen",
-        "ecg", "trop",
-        "cxr", "ct_abd",
-        "ns_bolus", "lr_bolus",
-        "large_bore", "gi_consult", "ng_lavage", "npo", "icu_admit",
-        "ppi_gtt", "octreotide", "andexanet", "txa", "vitk", "heparin_ppx",
+        "trop",
       ],
-      correct: ["cmp", "cbc", "coags", "type_screen", "crossmatch", "large_bore", "gi_consult", "npo", "ns_bolus", "ppi_gtt", "ecg"],
-      critical: ["cbc", "type_screen", "crossmatch", "large_bore", "gi_consult"],
+      correct: ["cmp", "cbc", "coags", "type_screen", "crossmatch", "lactate", "trop"],
+      critical: ["cbc", "type_screen", "crossmatch"],
+      cost: { fibrinogen: "wasteful" },
+      why: {
+        trop: "He's 71 with three grafts and a haemoglobin heading somewhere unpleasant. Demand ischemia is not hypothetical.",
+        lactate:
+          "His pressure will lie to you and so will his heart rate. The lactate is the number that doesn't.",
+        fibrinogen: "He isn't coagulopathic and he isn't in DIC. This is a panel you order out of habit.",
+        lft: "Reasonable — you're asking whether there's liver disease behind this. There isn't, but it's a fair question.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: ["Good. Off it goes."],
+      onWrong: ["We'll come back to a couple of those."],
+    },
+
+    {
+      kind: "mcq",
+      id: "g4b",
+      speaker: "okafor",
+      tier: "foundation",
+      domain: "guidelines",
+      say: [
+        "One thing on that list before we move.",
+        "You asked for a crossmatch, not just a type and screen. The blood bank will want a reason.",
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "A screen tells you his group and antibody status; crossmatched units are allocated with his name on them and ready in minutes when he drops",
+        },
+        { id: "b", text: "A type and screen can't be performed once a patient is actively bleeding" },
+        { id: "c", text: "Crossmatch is legally required before any transfusion" },
+        { id: "d", text: "The screen would be invalidated by the first unit transfused" },
+      ],
+      correct: "a",
+      why: {
+        b: "It can. The screen is the first half of the process, not an alternative to it.",
+        c: "In an emergency you can transfuse uncrossmatched O negative. The law is not the constraint — the clock is.",
+        d: "Not for this admission. And it isn't the reason to cross him now.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: ["Right. The difference is about 40 minutes, and he may not have 40 minutes."],
+      onWrong: [
+        [
+          "The screen establishes his group and looks for antibodies. The crossmatch is the final compatibility step, and it's what gets units physically allocated to him.",
+          "Screen alone and you're 30 to 45 minutes from blood when he crashes. Crossed and waiting, you're two.",
+        ],
+      ],
+    },
+
+    {
+      kind: "picker",
+      id: "g4c",
+      speaker: "okafor",
+      tier: "core",
+      domain: "treatment",
+      say: ["Now the patient rather than the labs. Access, monitoring, where he goes."],
+      grouped: true,
+      show: [
+        "ecg", "tele",
+        "large_bore", "foley", "npo", "strict_io", "ng_lavage", "icu_admit", "stepdown_admit",
+        "ns_bolus", "lr_bolus",
+      ],
+      correct: ["ecg", "tele", "large_bore", "npo", "strict_io", "icu_admit", "ns_bolus"],
+      critical: ["large_bore", "tele", "ns_bolus"],
+      cost: { ng_lavage: "wasteful" },
+      why: {
+        large_bore:
+          "The single most useful order on this screen, and the one people skip because it feels like a nursing detail.",
+        icu_admit:
+          "He's hypotensive with an active bleed and three-vessel disease. A monitored bed is defensible; the unit is safer.",
+        ng_lavage:
+          "Doesn't change management, doesn't exclude an upper source, and is genuinely unpleasant. Quietly abandoned.",
+        lr_bolus: "Fine. Balanced crystalloid versus saline is not the argument that matters tonight.",
+        foley: "Reasonable for output monitoring in someone this unstable.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: ["Good. He's monitored, he's got access, and fluids are up."],
+      onWrong: ["We'll fix the gaps. Fluids are up."],
+    },
+
+    {
+      kind: "mcq",
+      id: "g4d",
+      speaker: "okafor",
+      tier: "foundation",
+      domain: "treatment",
+      say: [
+        "Ezra asked me last week why we don't just put a central line in these patients.",
+        "Two short fat peripherals, or one long central line. Which moves blood faster, and why?",
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "The peripherals — flow rises with the fourth power of the radius and falls with length, so short and wide beats long and narrow",
+        },
+        { id: "b", text: "The central line — larger vessels accept higher flow rates" },
+        { id: "c", text: "The peripherals, but only because they're quicker to place; a central line would be better given time" },
+        { id: "d", text: "They're equivalent; the difference is infection risk, not flow" },
+      ],
+      correct: "a",
+      why: {
+        b: "The vessel isn't the bottleneck. The cannula is, and a triple-lumen has narrow, long channels.",
+        c: "This is the common version and it's wrong on the physics. Even with unlimited time, the peripherals move more blood.",
+        d: "Infection risk is real and separate. The flow difference is large and in the peripherals' favour.",
+      },
+      rep: { who: "okafor", points: 2 },
+      onRight: [
+        [
+          "Poiseuille. Double the radius and you get sixteen times the flow; double the length and you halve it.",
+          "A triple-lumen central line is long and narrow — exactly the wrong shape for volume.",
+        ],
+      ],
+      onWrong: [
+        [
+          "Flow through a tube goes with the fourth power of its radius and inversely with its length. A short wide peripheral cannula beats a long narrow central lumen, and it isn't close.",
+          "Central lines are for pressors, monitoring, and access you can't get otherwise. They are not the resuscitation line.",
+        ],
+      ],
+    },
+
+    {
+      kind: "picker",
+      id: "g4e",
+      speaker: "okafor",
+      tier: "core",
+      domain: "treatment",
+      say: ["Last chunk. Drugs, and who you're calling."],
+      grouped: true,
+      show: [
+        "gi_consult",
+        "ppi_bolus", "ppi_gtt", "octreotide", "andexanet", "pcc", "txa", "vitk",
+        "heparin_ppx", "abx_empiric", "ondansetron",
+      ],
+      correct: ["gi_consult", "ppi_bolus", "ppi_gtt"],
+      critical: ["gi_consult", "ppi_gtt"],
       cost: {
         heparin_ppx: "harmful",
         txa: "harmful",
         vitk: "wasteful",
-        andexanet: "defensible",
-        octreotide: "defensible",
-        ct_abd: "wasteful",
-        ng_lavage: "wasteful",
+        abx_empiric: "wasteful",
       },
       why: {
-        crossmatch:
-          "Type and screen alone gets you compatible blood in about 45 minutes. He may not have 45 minutes. Cross him now.",
-        large_bore:
-          "Two short, fat cannulas beat any central line for volume. This is the order that actually resuscitates him.",
+        gi_consult: "Nothing you do tonight stops the bleeding. The person who can is asleep, and you have to wake them.",
         heparin_ppx:
           "Prophylactic anticoagulation in a man actively bleeding from his stomach. Easy to click past on an admission order set, and genuinely dangerous.",
-        txa: "HALT-IT showed no mortality benefit in GI bleeding and more venous thrombosis. It looked obvious and it was wrong.",
-        vitk: "Vitamin K does nothing for a factor Xa inhibitor. His INR is mildly raised because apixaban perturbs the assay, not because he's warfarin-deficient.",
-        ng_lavage: "Doesn't change management, doesn't exclude an upper source, and is unpleasant. It's been quietly abandoned.",
-        ecg: "He's 71 with three-vessel disease and a haemoglobin heading somewhere unpleasant. Demand ischemia is not a hypothetical.",
-        octreotide: "Reasonable if you're worried about varices. Nothing here suggests portal hypertension — no liver disease, no alcohol.",
-        andexanet: "Hold that thought. Ezra's about to ask.",
+        vitk: "Does nothing to a factor Xa inhibitor. His INR is perturbed by the drug, not by vitamin K deficiency.",
+        abx_empiric:
+          "Antibiotics are indicated in variceal bleeding with cirrhosis. He has neither.",
+        andexanet: "Hold that thought — Ezra is about to ask about exactly this.",
+        octreotide: "Reasonable if you suspect varices. No liver disease, no alcohol, no stigmata.",
       },
       rep: { who: "okafor", points: 2 },
-      onRight: ["Good. Blood's crossed, GI's paged, fluids are up."],
-      onWrong: ["We'll fix the gaps as we go. Blood's crossed and GI's paged."],
+      onRight: ["Good. GI's paged and the infusion's running."],
+      onWrong: ["I'll page GI myself. Let's talk about one of those."],
+    },
+
+    {
+      kind: "mcq",
+      id: "g4f",
+      speaker: "okafor",
+      tier: "bonus",
+      domain: "guidelines",
+      wager: true,
+      say: [
+        "Someone on nights will suggest tranexamic acid for this. They always do.",
+        "What do you tell them?",
+      ],
+      choices: [
+        {
+          id: "a",
+          text: "No — HALT-IT randomised over 12,000 patients with GI bleeding and found no mortality benefit and more venous thromboembolism",
+        },
+        { id: "b", text: "Yes — it reduces mortality in GI bleeding just as it does in trauma" },
+        { id: "c", text: "Yes, but only in variceal bleeding" },
+        { id: "d", text: "No — tranexamic acid is contraindicated in anyone on an anticoagulant" },
+      ],
+      correct: "a",
+      why: {
+        b: "The trauma result is real and it did not transfer. That is the entire lesson of HALT-IT — a mechanism that works in one bleeding population is a hypothesis, not a conclusion, in another.",
+        c: "No subgroup showed benefit, variceal included.",
+        d: "It isn't contraindicated. It just doesn't help, and it causes clots.",
+      },
+      rep: { who: "okafor", points: 3 },
+      onRight: [
+        [
+          "Good. And notice why people get it wrong — CRASH-2 made tranexamic acid feel like a general-purpose answer to bleeding.",
+          "Twelve thousand patients later, no mortality benefit and more clots. Extrapolating a mechanism across populations is how confident medicine goes wrong.",
+        ],
+      ],
+      onWrong: [
+        [
+          "No. HALT-IT randomised more than 12,000 patients with gastrointestinal bleeding — no mortality benefit, and more venous thromboembolism.",
+          "It feels like it should work, because it works in trauma. That's precisely the trap: a plausible mechanism in one bleeding population is a hypothesis in another, not a conclusion.",
+        ],
+      ],
     },
 
     {
