@@ -46,6 +46,11 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "abg", name: "Arterial blood gas", category: "Chemistry", synonyms: ["abg"] },
   { id: "salicylate", name: "Salicylate level", category: "Chemistry", synonyms: ["asa level", "aspirin level"] },
   { id: "etoh", name: "Ethanol level", category: "Chemistry", synonyms: ["alcohol level"] },
+  { id: "uric_acid", name: "Uric acid", category: "Chemistry", synonyms: ["urate"] },
+  { id: "urine_osm", name: "Urine osmolality", category: "Chemistry", synonyms: ["urine osms", "uosm"] },
+  { id: "urine_na", name: "Urine sodium", category: "Chemistry", synonyms: ["urine sodium", "una", "fena"] },
+  { id: "urine_k", name: "Urine potassium", category: "Chemistry" },
+  { id: "na_serial", name: "Serial sodium, every 2 hours", category: "Chemistry", synonyms: ["q2h sodium", "serial sodium"] },
 
   // ---- Hematology ----
   { id: "cbc", name: "CBC with differential", category: "Hematology", synonyms: ["cbc", "blood count"] },
@@ -95,6 +100,9 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "ns_maint", name: "Normal saline infusion", category: "Fluids", synonyms: ["ns drip", "maintenance saline"] },
   { id: "half_ns", name: "Half-normal saline infusion", category: "Fluids", synonyms: ["1/2 ns", "half normal"] },
   { id: "d5_half_ns", name: "D5 half-normal saline infusion", category: "Fluids", synonyms: ["d5 half ns", "dextrose containing fluid"] },
+  { id: "hypertonic", name: "Hypertonic (3%) saline bolus", category: "Fluids", synonyms: ["3% saline", "hypertonic saline"] },
+  { id: "d5w", name: "D5W infusion (free water)", category: "Fluids", synonyms: ["d5w", "free water", "dextrose water"] },
+  { id: "fluid_restrict", name: "Fluid restriction", category: "Fluids", synonyms: ["fluid restrict", "water restriction"] },
 
   // ---- Medications ----
   { id: "insulin_gtt", name: "Regular insulin infusion", category: "Medications", synonyms: ["insulin drip", "insulin gtt"] },
@@ -117,6 +125,9 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "pcc", name: "4-factor prothrombin complex concentrate", category: "Medications", synonyms: ["pcc", "kcentra"] },
   { id: "vitk", name: "Vitamin K IV", category: "Medications", synonyms: ["vitamin k", "phytonadione"] },
   { id: "txa", name: "Tranexamic acid IV", category: "Medications", synonyms: ["txa"] },
+  { id: "ddavp", name: "Desmopressin", category: "Medications", synonyms: ["ddavp", "desmopressin", "vasopressin clamp"] },
+  { id: "tolvaptan", name: "Tolvaptan", category: "Medications", synonyms: ["tolvaptan", "vaptan"] },
+  { id: "salt_tabs", name: "Sodium chloride tablets, oral", category: "Medications", synonyms: ["salt tabs"] },
 
   // ---- Nursing ----
   { id: "strict_io", name: "Strict intake and output", category: "Nursing", synonyms: ["strict i/o", "i and o"] },

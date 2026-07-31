@@ -21,6 +21,8 @@ export type SpeakerId =
   | "marisol" // patient, DKA case
   | "ray" // patient, GI bleed case
   | "gi" // the fellow you have to call at 2am
+  | "eileen" // patient, hyponatremia case
+  | "nadia" // her daughter
   | "system"; // results landing, time passing
 
 /** What the beat is teaching. Drives the end-of-case breakdown. */
@@ -83,9 +85,8 @@ interface BeatBase {
   wager?: boolean;
   rep: RepAward;
   /**
-   * Analyte ids revealed in the chart once this beat is answered. Used for
-   * derived values the resident is asked to work out — showing the anion gap
-   * while the attending asks you to calculate it hands over the answer.
+   * Analyte ids revealed in the chart once this beat is answered — a value the
+   * resident had to calculate, or a test they had to think to order.
    */
   unlocks?: string[];
   /**
@@ -280,8 +281,13 @@ export interface LabAnalyte {
   low?: number;
   high?: number;
   decimals?: number;
-  /** Not reported by the lab. Hidden until a beat unlocks it. */
-  derived?: boolean;
+  /**
+   * Not shown in the chart until a beat unlocks it. Two uses: a value the
+   * resident is asked to calculate (showing it would hand over the answer), and
+   * a test that hasn't been sent yet (showing it would skip the decision to
+   * order it).
+   */
+  hidden?: boolean;
 }
 
 export interface LabDraw {

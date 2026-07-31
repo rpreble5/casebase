@@ -50,9 +50,8 @@ export const dkaCase: MedicalCase = {
     { id: "k", name: "Potassium", ref: "3.5–5.1", low: 3.5, high: 5.1, decimals: 1 },
     { id: "cl", name: "Chloride", ref: "98–107", low: 98, high: 107 },
     { id: "hco3", name: "Bicarb", ref: "22–29", low: 22, high: 29 },
-    // Derived, not reported by the lab — and b5 asks the resident to calculate it.
-    // Showing it before then would hand over the answer.
-    { id: "ag", name: "Anion gap", ref: "8–12", low: 8, high: 12, derived: true },
+    // Hidden until b5, where the resident is asked to calculate it.
+    { id: "ag", name: "Anion gap", ref: "8–12", low: 8, high: 12, hidden: true },
     { id: "bun", name: "BUN", ref: "7–20", low: 7, high: 20 },
     { id: "cr", name: "Creatinine", ref: "0.6–1.1", low: 0.6, high: 1.1, decimals: 1 },
     { id: "ph", name: "pH", ref: "7.35–7.45", low: 7.35, high: 7.45, decimals: 2 },

@@ -110,7 +110,7 @@ function LabsTab() {
   const n = useRun((s) => s.revealedDraws);
   const unlocked = useRun((s) => s.unlockedAnalytes);
   const draws = c.draws.slice(0, n);
-  const analytes = c.analytes.filter((a) => !a.derived || unlocked.includes(a.id));
+  const analytes = c.analytes.filter((a) => !a.hidden || unlocked.includes(a.id));
 
   if (draws.length === 0) {
     return <p className="chart__empty">Nothing resulted yet.</p>;

@@ -61,8 +61,8 @@ export const giBleedCase: MedicalCase = {
     { id: "inr", name: "INR", ref: "0.9–1.1", low: 0.9, high: 1.1, decimals: 1 },
     { id: "bun", name: "BUN", ref: "7–20", low: 7, high: 20 },
     { id: "cr", name: "Creatinine", ref: "0.6–1.1", low: 0.6, high: 1.1, decimals: 1 },
-    // Derived — b7 asks the resident to work it out, so it stays hidden until then.
-    { id: "bcr", name: "BUN:Cr ratio", ref: "<20", high: 20, derived: true },
+    // Hidden until g6, where the resident is asked to work it out.
+    { id: "bcr", name: "BUN:Cr ratio", ref: "<20", high: 20, hidden: true },
     { id: "na", name: "Sodium", ref: "135–145", low: 135, high: 145 },
     { id: "k", name: "Potassium", ref: "3.5–5.1", low: 3.5, high: 5.1, decimals: 1 },
     { id: "lactate", name: "Lactate", ref: "<2.0", high: 2.0, decimals: 1 },

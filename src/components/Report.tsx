@@ -62,6 +62,18 @@ const STANDINGS: Record<SpeakerId, [string, string, string, string]> = {
     "Had to drag it out of you",
     "Is going to mention this handover to someone",
   ],
+  eileen: [
+    "Got her crossword back",
+    "Came round and stayed round",
+    "Is still confused about what happened",
+    "Went home not knowing why she was here",
+  ],
+  nadia: [
+    "Stopped blaming herself",
+    "Understood what happened to her mother",
+    "Is still turning it over",
+    "Left believing it was her fault",
+  ],
   system: ["", "", "", ""],
 };
 
