@@ -65,6 +65,7 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "a1c", name: "Hemoglobin A1c", category: "Endocrine", synonyms: ["a1c", "hba1c"] },
   { id: "tsh", name: "TSH", category: "Endocrine" },
   { id: "cpeptide", name: "C-peptide", category: "Endocrine" },
+  { id: "bnp", name: "BNP", category: "Endocrine", synonyms: ["bnp", "b-type natriuretic peptide", "nt-probnp"] },
   { id: "cortisol", name: "Cortisol", category: "Endocrine" },
 
   // ---- Micro ----
@@ -128,6 +129,12 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "ddavp", name: "Desmopressin", category: "Medications", synonyms: ["ddavp", "desmopressin", "vasopressin clamp"] },
   { id: "tolvaptan", name: "Tolvaptan", category: "Medications", synonyms: ["tolvaptan", "vaptan"] },
   { id: "salt_tabs", name: "Sodium chloride tablets, oral", category: "Medications", synonyms: ["salt tabs"] },
+  { id: "furosemide_iv", name: "Furosemide IV", category: "Medications", synonyms: ["iv lasix", "iv furosemide"] },
+  { id: "metolazone", name: "Metolazone, oral", category: "Medications", synonyms: ["metolazone", "zaroxolyn"] },
+  { id: "amiodarone_iv", name: "Amiodarone IV", category: "Medications", synonyms: ["amiodarone", "cordarone"] },
+  { id: "diltiazem_iv", name: "Diltiazem IV", category: "Medications", synonyms: ["diltiazem", "cardizem"] },
+  { id: "digoxin", name: "Digoxin IV", category: "Medications", synonyms: ["digoxin", "lanoxin"] },
+  { id: "anticoag_start", name: "Start therapeutic anticoagulation (DOAC)", category: "Medications", synonyms: ["apixaban", "anticoagulation", "doac"] },
 
   // ---- Nursing ----
   { id: "strict_io", name: "Strict intake and output", category: "Nursing", synonyms: ["strict i/o", "i and o"] },
@@ -137,6 +144,10 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "large_bore", name: "Two large-bore IVs", category: "Nursing", synonyms: ["large bore iv", "two ivs", "access"] },
   { id: "gi_consult", name: "Gastroenterology consult", category: "Nursing", synonyms: ["gi consult", "call gi"] },
   { id: "ng_lavage", name: "Nasogastric lavage", category: "Nursing", synonyms: ["ng lavage", "ng tube"] },
+  { id: "daily_weights", name: "Daily weights", category: "Nursing", synonyms: ["daily weight", "weigh daily"] },
+  { id: "na_restrict_diet", name: "Sodium-restricted diet (2g)", category: "Nursing", synonyms: ["low sodium diet", "2g sodium diet", "cardiac diet"] },
+  { id: "o2_therapy", name: "Supplemental oxygen, titrate to SpO2 > 92%", category: "Nursing", synonyms: ["oxygen", "nasal cannula", "o2"] },
+  { id: "cards_consult", name: "Cardiology consult", category: "Nursing", synonyms: ["cardiology consult", "call cards"] },
   { id: "icu_admit", name: "Admit to ICU", category: "Nursing", synonyms: ["icu", "unit"] },
   { id: "stepdown_admit", name: "Admit to stepdown", category: "Nursing", synonyms: ["stepdown", "intermediate care"] },
 ];

@@ -74,6 +74,18 @@ const STANDINGS: Record<SpeakerId, [string, string, string, string]> = {
     "Is still turning it over",
     "Left believing it was her fault",
   ],
+  harold: [
+    "Understood exactly what he needs to watch for",
+    "Left with a plan he'll actually follow",
+    "Is still fuzzy on what changed",
+    "Went home without a real plan",
+  ],
+  denise: [
+    "Feels confident she'd catch it early next time",
+    "Understood what happened",
+    "Is still worried and unsure what to watch for",
+    "Left without answers",
+  ],
   system: ["", "", "", ""],
 };
 

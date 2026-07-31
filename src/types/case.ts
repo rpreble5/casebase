@@ -23,6 +23,8 @@ export type SpeakerId =
   | "gi" // the fellow you have to call at 2am
   | "eileen" // patient, hyponatremia case
   | "nadia" // her daughter
+  | "harold" // patient, heart failure case
+  | "denise" // his wife
   | "system"; // results landing, time passing
 
 /** What the beat is teaching. Drives the end-of-case breakdown. */
