@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type {
   Beat,
+  MedAction,
   MedicalCase,
   PickCost,
   SayLine,
@@ -32,7 +33,9 @@ export type FeedItem =
   | { key: string; type: "note"; text: string }
   | { key: string; type: "rep"; who: SpeakerId; delta: number }
   /** The graded option list. Stays in the transcript as the record of what you did. */
-  | { key: string; type: "graded"; beatId: string };
+  | { key: string; type: "graded"; beatId: string }
+  /** The medication list you settled on. Recorded, not marked. */
+  | { key: string; type: "meds"; beatId: string };
 
 /** One step of the dialogue queue. Consumed by tick() on a timer. */
 type PendingOp =
@@ -75,6 +78,8 @@ export interface AnswerRecord {
   confirmChoice?: "affirm" | "deny";
   /** Right action, wrong reason — only meaningful on a beat that `pairs` another. */
   wrongReason?: boolean;
+  /** Medication reconciliation: what you decided for each drug. */
+  meds?: Record<string, MedAction>;
 }
 
 /**
@@ -104,6 +109,8 @@ interface RunState {
   revealedDraws: number;
   /** Derived analytes the resident has earned the right to see. */
   unlockedAnalytes: string[];
+  /** Home medication decisions, so later beats can react to them. */
+  medChoices: Record<string, MedAction>;
   orders: string[];
   wager: WagerLevel | null;
   confirmChoice: "affirm" | "deny" | null;
@@ -121,6 +128,7 @@ interface RunState {
 
 export type AnswerPayload =
   | { kind: "choice"; id: string; label: string }
+  | { kind: "meds"; meds: Record<string, MedAction> }
   | { kind: "set"; ids: string[]; shown: string[] }
   | { kind: "value"; value: number; label: string };
 
@@ -183,6 +191,7 @@ export const useRun = create<RunState>((set, get) => ({
   reputation: emptyRep(),
   revealedDraws: 0,
   unlockedAnalytes: [],
+  medChoices: {},
   orders: [],
   wager: null,
   confirmChoice: null,
@@ -200,6 +209,7 @@ export const useRun = create<RunState>((set, get) => ({
       reputation: emptyRep(),
       revealedDraws: 0,
       unlockedAnalytes: [],
+      medChoices: {},
       orders: [],
       wager: null,
       confirmChoice: null,
@@ -275,7 +285,14 @@ export const useRun = create<RunState>((set, get) => ({
     const prev = lastSpeaker(st.feed);
 
     if (beat.kind === "say") {
-      set({ pending: toOps(beat.say, beat.speaker, prev, false), cursor: st.cursor + 1, phase: "playing" });
+      // A beat may reword itself around an earlier medication decision. Same
+      // beat, same position, same teaching point — only the framing moves.
+      const variant = beat.variants?.find((v) => st.medChoices[v.whenMed] === v.is);
+      set({
+        pending: toOps(variant?.say ?? beat.say, beat.speaker, prev, false),
+        cursor: st.cursor + 1,
+        phase: "playing",
+      });
       return;
     }
 
@@ -373,9 +390,14 @@ export const useRun = create<RunState>((set, get) => ({
     const feed: FeedItem[] = [...st.feed];
     // The ask rejoins the transcript now that it no longer has to stay pinned.
     if (st.activeAsk) feed.push({ key: key(), type: "bubble", ...st.activeAsk });
-    // The graded list replaces a useless "9 selected" pill.
-    feed.push({ key: key(), type: "graded", beatId: beat.id });
-    if (delta !== 0) feed.push({ key: key(), type: "rep", who, delta });
+    if (beat.quiet) {
+      // Recorded, not marked. No verdict and no score chip — otherwise the chip
+      // itself tells you whether you were right, which is the thing being avoided.
+      feed.push({ key: key(), type: "meds", beatId: beat.id });
+    } else {
+      feed.push({ key: key(), type: "graded", beatId: beat.id });
+      if (delta !== 0) feed.push({ key: key(), type: "rep", who, delta });
+    }
 
     const answerRecord: AnswerRecord = {
       beatId: beat.id,
@@ -387,6 +409,7 @@ export const useRun = create<RunState>((set, get) => ({
       harmful: outcome.harmful,
       shown: payload.kind === "set" ? payload.shown : undefined,
       picked: payload.kind === "choice" ? payload.id : undefined,
+      meds: payload.kind === "meds" ? payload.meds : undefined,
       value: payload.kind === "value" ? payload.value : undefined,
       confirmChoice: st.confirmChoice ?? undefined,
       wrongReason,
@@ -423,10 +446,12 @@ export const useRun = create<RunState>((set, get) => ({
       unlockedAnalytes: beat.unlocks
         ? Array.from(new Set([...st.unlockedAnalytes, ...beat.unlocks]))
         : st.unlockedAnalytes,
+      medChoices:
+        payload.kind === "meds" ? { ...st.medChoices, ...payload.meds } : st.medChoices,
       orders,
       phase: "reveal",
       pending: toOps(
-        outcome.right ? beat.onRight : beat.onWrong,
+        beat.quiet || outcome.right ? beat.onRight : beat.onWrong,
         beat.speaker,
         lastSpeaker(feed),
         false
@@ -456,6 +481,7 @@ function persist(st: RunState) {
     reputation: st.reputation,
     revealedDraws: st.revealedDraws,
     unlockedAnalytes: st.unlockedAnalytes,
+    medChoices: st.medChoices,
     orders: st.orders,
   });
 }
@@ -503,6 +529,16 @@ function grade(
       return { right: misses.length === 0 && harmful.length === 0, hits, misses, wrongAdds, harmful };
     }
 
+    case "medrec": {
+      if (payload.kind !== "meds") return { right: false };
+      const hits = beat.meds.filter((m) => payload.meds[m.id] === m.correct).map((m) => m.id);
+      const misses = beat.meds.filter((m) => payload.meds[m.id] !== m.correct).map((m) => m.id);
+      const harmful = beat.meds
+        .filter((m) => m.harmful?.includes(payload.meds[m.id]))
+        .map((m) => m.id);
+      return { right: misses.length === 0, hits, misses, harmful };
+    }
+
     case "slider": {
       if (payload.kind !== "value") return { right: false };
       const [lo, hi] = beat.accept;
@@ -521,6 +557,7 @@ function grade(
 }
 
 function optionCount(beat: Beat): number | undefined {
+  if (beat.kind === "medrec") return beat.meds.length;
   if (beat.kind === "mcq" || beat.kind === "selectAll") return beat.choices.length;
   if (beat.kind === "picker") return beat.show.length;
   if (beat.kind === "confirm") return beat.followUp.choices.length;

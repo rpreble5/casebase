@@ -6,6 +6,7 @@ import { catalogItem } from "../../data/orderCatalog";
 import { Avatar } from "../ui/Avatar";
 import { Bubble } from "../Conversation/Bubble";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
+import { MedRecCard } from "./MedRec";
 import { Report } from "../Report";
 import { play } from "../../audio/sounds";
 import "./InputCard.css";
@@ -71,6 +72,8 @@ function Input({ beat, phase }: { beat: Beat; phase: string }) {
           onPick={(id, label) => useRun.getState().answer({ kind: "choice", id, label })}
         />
       );
+    case "medrec":
+      return <MedRecCard beat={beat} />;
     case "selectAll":
       return <SetCard beat={beat} />;
     case "picker":

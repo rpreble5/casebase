@@ -17,8 +17,10 @@ export const SPEAKERS: Record<SpeakerId, SpeakerDef> = {
   dani: { id: "dani", name: "Dani", role: "RN", color: "var(--sage)", face: "cap" },
   pharmacy: { id: "pharmacy", name: "Pharmacy", role: "on the phone", color: "var(--ochre)", face: "plain" },
   marisol: { id: "marisol", name: "Marisol", role: "patient", color: "var(--rose)", face: "bangs" },
+  ray: { id: "ray", name: "Ray", role: "patient", color: "var(--rose)", face: "plain" },
+  gi: { id: "gi", name: "GI fellow", role: "on the phone", color: "var(--clay)", face: "glasses" },
   system: { id: "system", name: "", role: "", color: "var(--paper-sink)", face: "plain" },
 };
 
 /** Everyone who can hold a reputation meter. */
-export const RATED_SPEAKERS: SpeakerId[] = ["okafor", "ezra", "dani", "pharmacy", "marisol"];
+export const RATED_SPEAKERS: SpeakerId[] = ["okafor", "ezra", "dani", "pharmacy", "gi", "marisol", "ray"];

@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useRun } from "../state/runStore";
+import { CASES, caseById } from "../data/cases";
 import { SPEAKERS, RATED_SPEAKERS } from "../data/speakers";
 import { Avatar } from "./ui/Avatar";
 import { SoundIcon } from "./ui/Icon";
@@ -14,6 +15,8 @@ import "./Header.css";
  */
 export function Header({ onToggleChart }: { onToggleChart: () => void }) {
   const title = useRun((s) => s.caseData?.title ?? "");
+  const caseId = useRun((s) => s.caseData?.id ?? "");
+  const begin = useRun((s) => s.begin);
   const rep = useRun((s) => s.reputation);
   const feed = useRun((s) => s.feed);
   const reset = useRun((s) => s.reset);
@@ -26,12 +29,25 @@ export function Header({ onToggleChart }: { onToggleChart: () => void }) {
   return (
     <header className="hd">
       <div className="hd__title">
-        <b>{title}</b>
+        <select
+          className="hd__case"
+          value={caseId}
+          aria-label="Case"
+          onChange={(e) => {
+            const next = caseById(e.target.value);
+            if (next) begin(next, { fresh: true });
+          }}
+        >
+          {CASES.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
+        </select>
+        <b className="hd__hidden">{title}</b>
         {/* Build stamp: hover to see when it was deployed. Removes any doubt
             about whether you're looking at the newest push or a cached build. */}
-        <em title={`built ${new Date(__BUILD_TIME__).toLocaleString()}`}>
-          DKA · vertical slice · {__BUILD_SHA__}
-        </em>
+        <em title={`built ${new Date(__BUILD_TIME__).toLocaleString()}`}>{__BUILD_SHA__}</em>
       </div>
 
       <div className="hd__rep">

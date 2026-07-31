@@ -50,6 +50,18 @@ const STANDINGS: Record<SpeakerId, [string, string, string, string]> = {
     "Was left with questions",
     "Still doesn't know what happened",
   ],
+  ray: [
+    "Knows exactly what happened and why",
+    "Understood the important part",
+    "Is still worried about the blood thinner",
+    "Is going home frightened of the wrong drug",
+  ],
+  gi: [
+    "Will take your next call first",
+    "Found you easy to work with",
+    "Had to drag it out of you",
+    "Is going to mention this handover to someone",
+  ],
   system: ["", "", "", ""],
 };
 
@@ -97,6 +109,10 @@ export function Report() {
   }
 
   const wrongReasons = questions.filter((b) => answers[b.id]?.wrongReason);
+
+  // The medication beat deliberately gives no feedback in the moment, so this is
+  // the first time the resident sees how those calls landed.
+  const medBeats = questions.filter((b) => b.kind === "medrec" && answers[b.id]?.meds);
 
   const staked = questions
     .map((b) => answers[b.id])
@@ -166,6 +182,42 @@ export function Report() {
           ))}
         </ul>
       </section>
+
+      {medBeats.map((b) => {
+        if (b.kind !== "medrec") return null;
+        const chosen = answers[b.id].meds!;
+        const wrong = b.meds.filter((m) => chosen[m.id] !== m.correct);
+        return (
+          <section className="report__block" key={b.id}>
+            <h3>The medication list</h3>
+            <p className="report__note">
+              {wrong.length === 0
+                ? "Every call matched. That list was the diagnosis, and you read it correctly."
+                : "You weren't told at the time, on purpose. Here's how those calls landed."}
+            </p>
+            {wrong.length > 0 && (
+              <ul className="wr">
+                {wrong.map((m) => (
+                  <li key={m.id}>
+                    <CrossIcon size={15} />
+                    <span>
+                      <b>{m.name}</b> — you{" "}
+                      {chosen[m.id] === "continue"
+                        ? "continued"
+                        : chosen[m.id] === "hold"
+                          ? "held"
+                          : "stopped"}{" "}
+                      it; it should have been{" "}
+                      {m.correct === "continue" ? "continued" : m.correct === "hold" ? "held" : "stopped"}.
+                      {m.why ? ` ${m.why}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+      })}
 
       {wrongReasons.length > 0 && (
         <section className="report__block">

@@ -51,6 +51,9 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "cbc", name: "CBC with differential", category: "Hematology", synonyms: ["cbc", "blood count"] },
   { id: "coags", name: "PT / INR and PTT", category: "Hematology", synonyms: ["coags", "inr"] },
   { id: "type_screen", name: "Type and screen", category: "Hematology" },
+  { id: "crossmatch", name: "Crossmatch 2 units", category: "Hematology", synonyms: ["crossmatch", "type and cross"] },
+  { id: "prbc", name: "Transfuse packed red cells", category: "Hematology", synonyms: ["prbc", "transfuse", "blood"] },
+  { id: "fibrinogen", name: "Fibrinogen", category: "Hematology" },
 
   // ---- Endocrine ----
   { id: "bhb", name: "Beta-hydroxybutyrate, serum", category: "Endocrine", synonyms: ["bhb", "beta hydroxybutyrate", "serum ketones"] },
@@ -106,12 +109,23 @@ export const ORDER_CATALOG: CatalogItem[] = [
   { id: "abx_empiric", name: "Empiric broad-spectrum antibiotics", category: "Medications", synonyms: ["antibiotics", "abx"] },
   { id: "heparin_ppx", name: "Prophylactic heparin, subcutaneous", category: "Medications", synonyms: ["dvt ppx", "heparin ppx"] },
   { id: "metoclopramide", name: "Metoclopramide IV", category: "Medications", synonyms: ["reglan"] },
+  { id: "ppi_gtt", name: "Pantoprazole IV infusion", category: "Medications", synonyms: ["ppi drip", "protonix drip", "pantoprazole infusion"] },
+  { id: "ppi_bolus", name: "Pantoprazole IV bolus", category: "Medications", synonyms: ["protonix bolus"] },
+  { id: "octreotide", name: "Octreotide infusion", category: "Medications", synonyms: ["octreotide", "sandostatin"] },
+  { id: "erythromycin_pro", name: "Erythromycin IV, pre-endoscopy", category: "Medications", synonyms: ["erythromycin", "prokinetic"] },
+  { id: "andexanet", name: "Andexanet alfa", category: "Medications", synonyms: ["andexxa", "factor xa reversal"] },
+  { id: "pcc", name: "4-factor prothrombin complex concentrate", category: "Medications", synonyms: ["pcc", "kcentra"] },
+  { id: "vitk", name: "Vitamin K IV", category: "Medications", synonyms: ["vitamin k", "phytonadione"] },
+  { id: "txa", name: "Tranexamic acid IV", category: "Medications", synonyms: ["txa"] },
 
   // ---- Nursing ----
   { id: "strict_io", name: "Strict intake and output", category: "Nursing", synonyms: ["strict i/o", "i and o"] },
   { id: "foley", name: "Indwelling urinary catheter", category: "Nursing", synonyms: ["foley", "catheter"] },
   { id: "npo", name: "NPO", category: "Nursing", synonyms: ["nothing by mouth"] },
   { id: "neuro_checks", name: "Hourly neuro checks", category: "Nursing", synonyms: ["neuro checks"] },
+  { id: "large_bore", name: "Two large-bore IVs", category: "Nursing", synonyms: ["large bore iv", "two ivs", "access"] },
+  { id: "gi_consult", name: "Gastroenterology consult", category: "Nursing", synonyms: ["gi consult", "call gi"] },
+  { id: "ng_lavage", name: "Nasogastric lavage", category: "Nursing", synonyms: ["ng lavage", "ng tube"] },
   { id: "icu_admit", name: "Admit to ICU", category: "Nursing", synonyms: ["icu", "unit"] },
   { id: "stepdown_admit", name: "Admit to stepdown", category: "Nursing", synonyms: ["stepdown", "intermediate care"] },
 ];

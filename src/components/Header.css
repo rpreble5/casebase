@@ -93,3 +93,24 @@
     display: block;
   }
 }
+
+/* Case switcher. A native select so keyboard and screen readers work for free. */
+.hd__case {
+  appearance: none;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  padding: 0 20px 0 0;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23262a44' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 15px;
+}
+
+.hd__hidden {
+  display: none;
+}

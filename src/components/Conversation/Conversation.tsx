@@ -5,6 +5,7 @@ import { SPEAKERS } from "../../data/speakers";
 import { Bubble, Dots } from "./Bubble";
 import { Stage } from "../beats/InputCard";
 import { GradedBlock } from "../beats/GradedBlock";
+import { MedRecBlock } from "../beats/MedRec";
 import "./Conversation.css";
 
 /** Pace of the dialogue. Longer lines get a little more room to land. */
@@ -85,6 +86,10 @@ export function Conversation() {
                   </span>
                 </motion.div>
               );
+            }
+
+            if (item.type === "meds") {
+              return <MedRecBlock key={item.key} beatId={item.beatId} />;
             }
 
             if (item.type === "graded") {

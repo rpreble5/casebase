@@ -18,7 +18,9 @@ export type SpeakerId =
   | "ezra" // the gunner MS3
   | "dani" // nurse
   | "pharmacy"
-  | "marisol" // patient
+  | "marisol" // patient, DKA case
+  | "ray" // patient, GI bleed case
+  | "gi" // the fellow you have to call at 2am
   | "system"; // results landing, time passing
 
 /** What the beat is teaching. Drives the end-of-case breakdown. */
@@ -49,6 +51,16 @@ export type WagerLevel = "sure" | "think" | "unsure";
  * separated from its setup.
  */
 export type SayLine = string | string[];
+
+/**
+ * What to do with a home medication on admission.
+ *
+ * The interesting distinction is hold versus stop, not continue versus not.
+ * Residents write "hold" on everything and then nobody restarts the
+ * anticoagulant — or they pause the NSAID that caused the bleed and the patient
+ * resumes it at home. Those are different errors and they need different words.
+ */
+export type MedAction = "continue" | "hold" | "stop";
 
 /** Reputation is earned per character. Wagered beats scale these. */
 export interface RepAward {
@@ -82,6 +94,12 @@ interface BeatBase {
    * and it's the most useful thing the end-of-case report can tell a resident.
    */
   pairs?: string;
+  /**
+   * No verdict, no score marker, no correction. The beat is recorded and the
+   * consequences surface later in the conversation instead. For decisions that
+   * shouldn't feel like a quiz.
+   */
+  quiet?: boolean;
   /** Spoken by `speaker` after you answer. This is the teaching. */
   onRight: SayLine[];
   onWrong: SayLine[];
@@ -93,6 +111,15 @@ export interface SayBeat {
   id: string;
   speaker: SpeakerId;
   say: SayLine[];
+  /**
+   * Alternate wording when an earlier medication decision makes it apt.
+   *
+   * This is the one place a beat's text depends on something the resident did.
+   * It is deliberately not a branch: the beat exists either way, in the same
+   * position, teaching the same point — only the framing changes. First matching
+   * variant wins; `say` is the fallback.
+   */
+  variants?: { whenMed: string; is: MedAction; say: SayLine[] }[];
 }
 
 /** Results land: reveals a lab draw into the chart and announces it. */
@@ -108,6 +135,25 @@ export interface LabsBeat {
 export interface Choice {
   id: string;
   text: string;
+}
+
+/**
+ * The home medication list, shown in the conversation rather than the chart,
+ * because on admission it is a decision and not a reference.
+ */
+export interface MedRecBeat extends BeatBase {
+  kind: "medrec";
+  meds: {
+    id: string;
+    /** As written on the bottle. */
+    name: string;
+    /** Why they're on it — usually what makes the call hard. */
+    reason: string;
+    correct: MedAction;
+    /** Choices that are actively dangerous in this situation. */
+    harmful?: MedAction[];
+    why?: string;
+  }[];
 }
 
 export interface McqBeat extends BeatBase {
@@ -208,6 +254,7 @@ export interface ConfirmBeat extends BeatBase {
 export type Beat =
   | SayBeat
   | LabsBeat
+  | MedRecBeat
   | McqBeat
   | SelectAllBeat
   | PickerBeat
