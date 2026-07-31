@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { useRun, type BubbleItem } from "../../state/runStore";
+import { useRun } from "../../state/runStore";
 import { SPEAKERS } from "../../data/speakers";
-import { Avatar } from "../ui/Avatar";
+import { Bubble, Dots } from "./Bubble";
 import { Stage } from "../beats/InputCard";
 import { GradedBlock } from "../beats/GradedBlock";
 import "./Conversation.css";
@@ -97,7 +97,13 @@ export function Conversation() {
 
             const isLast = feed[feed.length - 1] === item;
             return (
-              <Bubble key={item.key} item={item} typing={isLast && growing} />
+              <Bubble
+                key={item.key}
+                speaker={item.speaker}
+                paras={item.paras}
+                leads={item.leads}
+                typing={isLast && growing}
+              />
             );
           })}
 
@@ -130,65 +136,5 @@ export function Conversation() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Bubble({ item, typing }: { item: BubbleItem; typing: boolean }) {
-  const sp = SPEAKERS[item.speaker];
-  return (
-    <motion.div
-      className={`convo__row ${item.leads ? "convo__row--leads" : ""}`}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, ease: [0.34, 1.4, 0.5, 1] }}
-    >
-      <div className="convo__gutter">{item.leads && <Avatar id={item.speaker} />}</div>
-      <div className="convo__body">
-        {item.leads && (
-          <div className="convo__who">
-            <b>{sp.name}</b>
-            {sp.role && <em>{sp.role}</em>}
-          </div>
-        )}
-        {/* `layout` animates the border growing to meet each new paragraph. */}
-        <motion.div className="bubble" layout transition={{ type: "spring", stiffness: 420, damping: 34 }}>
-          <AnimatePresence initial={false}>
-            {item.paras.map((p, i) => (
-              <motion.p
-                key={i}
-                layout="position"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.26 }}
-              >
-                {p}
-              </motion.p>
-            ))}
-            {typing && (
-              <motion.div
-                key="dots"
-                className="bubble__dots"
-                layout="position"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <Dots />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-function Dots() {
-  return (
-    <span className="dots">
-      <span />
-      <span />
-      <span />
-    </span>
   );
 }

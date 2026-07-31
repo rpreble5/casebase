@@ -48,6 +48,8 @@ type PendingOp =
 export interface ActiveAsk {
   speaker: SpeakerId;
   paras: string[];
+  /** False when the same voice just spoke — no repeated name header. */
+  leads: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -219,7 +221,10 @@ export const useRun = create<RunState>((set, get) => ({
     if (op.kind === "bubble") {
       play("bubble");
       if (op.ask) {
-        set({ activeAsk: { speaker: op.speaker, paras: [op.text] }, pending: rest });
+        set({
+          activeAsk: { speaker: op.speaker, paras: [op.text], leads: op.leads },
+          pending: rest,
+        });
       } else {
         set({
           feed: [
@@ -316,7 +321,7 @@ export const useRun = create<RunState>((set, get) => ({
     play("commit");
     const feed = [...st.feed];
     if (st.activeAsk) {
-      feed.push({ key: key(), type: "bubble", ...st.activeAsk, leads: false });
+      feed.push({ key: key(), type: "bubble", ...st.activeAsk });
     }
     feed.push({
       key: key(),
@@ -363,7 +368,7 @@ export const useRun = create<RunState>((set, get) => ({
 
     const feed: FeedItem[] = [...st.feed];
     // The ask rejoins the transcript now that it no longer has to stay pinned.
-    if (st.activeAsk) feed.push({ key: key(), type: "bubble", ...st.activeAsk, leads: false });
+    if (st.activeAsk) feed.push({ key: key(), type: "bubble", ...st.activeAsk });
     // The graded list replaces a useless "9 selected" pill.
     feed.push({ key: key(), type: "graded", beatId: beat.id });
     if (delta !== 0) feed.push({ key: key(), type: "rep", who, delta });

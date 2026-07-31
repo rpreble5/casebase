@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useRun } from "../../state/runStore";
 import type { Beat, PickerBeat, SelectAllBeat } from "../../types/case";
 import { catalogItem } from "../../data/orderCatalog";
-import { SPEAKERS } from "../../data/speakers";
 import { Avatar } from "../ui/Avatar";
+import { Bubble } from "../Conversation/Bubble";
 import { CheckIcon, CrossIcon } from "../ui/Icon";
 import { play } from "../../audio/sounds";
 import "./InputCard.css";
@@ -16,13 +16,13 @@ const pop = {
 };
 
 /**
- * The bounded stage.
+ * The active question.
  *
- * Question on top, options scrolling in the middle, commit row fixed at the
- * bottom, whole thing capped to the viewport. So the ask, the choices, and the
- * action are guaranteed to be on screen together no matter how long the list
- * gets — and because the stage can never grow taller than the window, the
- * auto-scroll stops fighting it.
+ * No container of its own. The ask renders as an ordinary speech bubble at the
+ * prose measure, and the options sit below it borderless and full width — so
+ * they read as controls rather than as one enormous card, and they can spread
+ * as wide as the space allows. Width is what makes everything fit on screen
+ * together; there's no internal scrolling to hide anything.
  */
 export function Stage() {
   const phase = useRun((s) => s.phase);
@@ -39,20 +39,14 @@ export function Stage() {
   if (!beat || !ask) return null;
 
   return (
-    <motion.section className="stage" {...pop}>
-      <header className="stage__ask">
-        <div className="stage__who">
-          <Avatar id={ask.speaker} size={30} />
-          <b>{SPEAKERS[ask.speaker].name}</b>
-        </div>
-        <div className="stage__lines">
-          {ask.paras.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-        </div>
-      </header>
-      <Input beat={beat} phase={phase} />
-    </motion.section>
+    <section className="stage">
+      <div className="stage__ask">
+        <Bubble speaker={ask.speaker} paras={ask.paras} leads={ask.leads} animate={false} />
+      </div>
+      <motion.div className="stage__input" {...pop}>
+        <Input beat={beat} phase={phase} />
+      </motion.div>
+    </section>
   );
 }
 
@@ -86,7 +80,7 @@ function Input({ beat, phase }: { beat: Beat; phase: string }) {
       return <KeypadCard beat={beat} />;
     case "confirm":
       return (
-        <div className="stage__body stage__body--row">
+        <div className="opts__row">
           {/* Both read identically on purpose. Making "Hold on" the loud one would
               tell the resident an order is wrong before they've looked at it. */}
           <button
@@ -121,7 +115,7 @@ function Input({ beat, phase }: { beat: Beat; phase: string }) {
 function WagerCard() {
   const setWager = useRun((s) => s.setWager);
   return (
-    <div className="stage__body">
+    <div className="opts">
       <div className="wager__prompt">
         <Avatar id="okafor" size={26} />
         <span>“You know this one?”</span>
@@ -157,7 +151,7 @@ function ChoiceCard({
   onPick: (id: string, label: string) => void;
 }) {
   return (
-    <div className="stage__body">
+    <div className="opts">
       <div className="ic__opts">
         {choices.map((c) => (
           <button
@@ -202,7 +196,7 @@ function SetCard({ beat }: { beat: SelectAllBeat }) {
   };
   return (
     <>
-      <div className="stage__body">
+      <div className="opts">
         <div className="ic__opts" style={{ "--cols": cols } as React.CSSProperties}>
           {beat.choices.map((c) => (
             <button
@@ -262,7 +256,7 @@ function PickerCard({ beat }: { beat: PickerBeat }) {
 
   return (
     <>
-      <div className="stage__body">
+      <div className="opts">
         {/* Categories flow into columns rather than stacking, so a 22-item list
             is roughly a third the height it used to be. */}
         <div className="ic__groups">
@@ -309,7 +303,7 @@ function Commit({
   label?: string;
 }) {
   return (
-    <div className="stage__commit">
+    <div className="opts__commit">
       {/* Deliberately never "3 of 5" — knowing the count is a different, easier question. */}
       <span className="ic__count">{count} selected</span>
       <button
@@ -336,7 +330,7 @@ function SliderCard({ beat }: { beat: Extract<Beat, { kind: "slider" }> }) {
   const derived = beat.derived ? (v * beat.derived.perUnit).toFixed(beat.derived.decimals) : null;
   return (
     <>
-      <div className="stage__body">
+      <div className="opts">
         <div className="dial">
           <div className="dial__val">
             {v.toFixed(d)}
@@ -360,7 +354,7 @@ function SliderCard({ beat }: { beat: Extract<Beat, { kind: "slider" }> }) {
           </div>
         </div>
       </div>
-      <div className="stage__commit">
+      <div className="opts__commit">
         <span />
         <button
           className="chunk ic__go"
@@ -388,7 +382,7 @@ function KeypadCard({ beat }: { beat: Extract<Beat, { kind: "keypad" }> }) {
   };
   return (
     <>
-      <div className="stage__body stage__body--pad">
+      <div className="opts opts--pad">
         {/* No range shown, no slider: a control that hints at the magnitude would
             leak the answer on an arithmetic question. */}
         <div className="pad__readout">
@@ -413,7 +407,7 @@ function KeypadCard({ beat }: { beat: Extract<Beat, { kind: "keypad" }> }) {
           </button>
         </div>
       </div>
-      <div className="stage__commit">
+      <div className="opts__commit">
         <span />
         <button
           className="chunk ic__go"
@@ -454,15 +448,15 @@ function ContinueBar() {
 function DoneCard() {
   const reset = useRun((s) => s.reset);
   return (
-    <motion.div className="stage stage--done" {...pop}>
-      <div className="stage__body">
+    <motion.div className="done" {...pop}>
+      <div className="opts">
         <b className="ic__ask">End of the slice.</b>
         <p className="ic__hint">
           Beats 14–22 aren't written yet — the dextrose threshold, the gap-versus-glucose beat,
           the transition off the drip, and Ezra's nitroprusside ambush.
         </p>
       </div>
-      <div className="stage__commit">
+      <div className="opts__commit">
         <span />
         <button className="chunk ic__go" onClick={reset}>
           Run it again

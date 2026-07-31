@@ -36,7 +36,7 @@
   /* Prose measure — long lines of body text are genuinely harder to read. */
   --col-max: 660px;
   /* Controls have no reading measure to respect, so they get the wider lane. */
-  --wide-max: 940px;
+  --wide-max: 1120px;
 
   --ease-pop: cubic-bezier(0.34, 1.4, 0.5, 1);
 }

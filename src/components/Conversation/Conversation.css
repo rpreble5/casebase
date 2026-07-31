@@ -15,12 +15,12 @@
 }
 
 /**
- * Prose is capped at a reading measure. Controls are not — an option list has no
- * line length to respect, so the stage and graded blocks break out to the wider
- * lane and use the space that was sitting empty.
+ * The column is as wide as the space allows. Prose inside it is capped at a
+ * reading measure — long lines of body text are genuinely harder to read — but
+ * option grids are not prose and take the full width.
  */
 .convo__col {
-  max-width: var(--col-max);
+  max-width: var(--wide-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -28,14 +28,15 @@
 }
 
 .convo__wide {
-  width: min(var(--wide-max), calc(100vw - 56px));
-  margin-left: calc((var(--col-max) - min(var(--wide-max), 100vw - 56px)) / 2);
+  width: 100%;
 }
 
 .convo__row {
   display: flex;
   gap: 14px;
   align-items: flex-start;
+  max-width: var(--col-max);
+  width: 100%;
 }
 
 /* Extra breathing room when a new voice takes over. */
@@ -197,10 +198,6 @@
 }
 
 @media (max-width: 900px) {
-  .convo__wide {
-    width: 100%;
-    margin-left: 0;
-  }
   .convo__scroll {
     padding: 20px 18px 50px;
   }
