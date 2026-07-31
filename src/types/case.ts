@@ -71,6 +71,12 @@ interface BeatBase {
   wager?: boolean;
   rep: RepAward;
   /**
+   * Analyte ids revealed in the chart once this beat is answered. Used for
+   * derived values the resident is asked to work out — showing the anion gap
+   * while the attending asks you to calculate it hands over the answer.
+   */
+  unlocks?: string[];
+  /**
    * Id of the action beat this one justifies. When an action is right and its
    * paired "why" is wrong, that's a distinct outcome — right call, wrong reason —
    * and it's the most useful thing the end-of-case report can tell a resident.
@@ -227,6 +233,8 @@ export interface LabAnalyte {
   low?: number;
   high?: number;
   decimals?: number;
+  /** Not reported by the lab. Hidden until a beat unlocks it. */
+  derived?: boolean;
 }
 
 export interface LabDraw {

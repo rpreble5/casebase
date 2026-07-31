@@ -102,6 +102,8 @@ interface RunState {
   answers: Record<string, AnswerRecord>;
   reputation: Record<string, number>;
   revealedDraws: number;
+  /** Derived analytes the resident has earned the right to see. */
+  unlockedAnalytes: string[];
   orders: string[];
   wager: WagerLevel | null;
   confirmChoice: "affirm" | "deny" | null;
@@ -180,6 +182,7 @@ export const useRun = create<RunState>((set, get) => ({
   answers: {},
   reputation: emptyRep(),
   revealedDraws: 0,
+  unlockedAnalytes: [],
   orders: [],
   wager: null,
   confirmChoice: null,
@@ -196,6 +199,7 @@ export const useRun = create<RunState>((set, get) => ({
       answers: {},
       reputation: emptyRep(),
       revealedDraws: 0,
+      unlockedAnalytes: [],
       orders: [],
       wager: null,
       confirmChoice: null,
@@ -415,6 +419,10 @@ export const useRun = create<RunState>((set, get) => ({
       activeAsk: null,
       answers: { ...st.answers, [beat.id]: answerRecord },
       reputation: rep,
+      // Unlocked whether or not they got it right — they've been shown the working.
+      unlockedAnalytes: beat.unlocks
+        ? Array.from(new Set([...st.unlockedAnalytes, ...beat.unlocks]))
+        : st.unlockedAnalytes,
       orders,
       phase: "reveal",
       pending: toOps(
@@ -447,6 +455,7 @@ function persist(st: RunState) {
     answers: st.answers,
     reputation: st.reputation,
     revealedDraws: st.revealedDraws,
+    unlockedAnalytes: st.unlockedAnalytes,
     orders: st.orders,
   });
 }

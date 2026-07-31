@@ -49,13 +49,15 @@ export const dkaCase: MedicalCase = {
     { id: "na", name: "Sodium", ref: "135–145", low: 135, high: 145 },
     { id: "k", name: "Potassium", ref: "3.5–5.1", low: 3.5, high: 5.1, decimals: 1 },
     { id: "cl", name: "Chloride", ref: "98–107", low: 98, high: 107 },
-    { id: "hco3", name: "Bicarbonate", ref: "22–29", low: 22, high: 29 },
-    { id: "ag", name: "Anion gap", ref: "8–12", low: 8, high: 12 },
+    { id: "hco3", name: "Bicarb", ref: "22–29", low: 22, high: 29 },
+    // Derived, not reported by the lab — and b5 asks the resident to calculate it.
+    // Showing it before then would hand over the answer.
+    { id: "ag", name: "Anion gap", ref: "8–12", low: 8, high: 12, derived: true },
     { id: "bun", name: "BUN", ref: "7–20", low: 7, high: 20 },
     { id: "cr", name: "Creatinine", ref: "0.6–1.1", low: 0.6, high: 1.1, decimals: 1 },
     { id: "ph", name: "pH", ref: "7.35–7.45", low: 7.35, high: 7.45, decimals: 2 },
     { id: "pco2", name: "pCO₂", ref: "35–45", low: 35, high: 45 },
-    { id: "bhb", name: "β-hydroxybutyrate", ref: "<0.6 mmol/L", high: 0.6, decimals: 1 },
+    { id: "bhb", name: "β-OHB", ref: "<0.6 mmol/L", high: 0.6, decimals: 1 },
   ],
 
   draws: [
@@ -99,7 +101,7 @@ export const dkaCase: MedicalCase = {
       say: [
         [
           "Bed four. Marisol Reyes, twenty-four, type one diabetic.",
-          "Two days of vomiting, roommate drove her in. Heart rate one twenty-two, pressure ninety-six over fifty-eight, respirations twenty-eight.",
+          "Two days of vomiting, roommate drove her in. Heart rate {=122}, pressure {=96/58}, respirations {=28}.",
         ],
         "Her meter just says HI. That's all it says.",
       ],
@@ -190,17 +192,18 @@ export const dkaCase: MedicalCase = {
       say: ["Before you say the word — give me her anion gap."],
       answer: 29,
       tolerance: 0,
+      unlocks: ["ag"],
       rep: { who: "okafor", points: 1 },
       onRight: [
         [
-          "Twenty-nine. Sodium one twenty-nine, chloride eighty-eight, bicarb twelve.",
-          "She's in DKA. Glucose over two fifty, gap acidosis, ketones through the roof.",
+          "{ag@0}. Sodium {na@0}, chloride {cl@0}, bicarb {hco3@0}.",
+          "She's in DKA. Glucose over {=250}, gap acidosis, ketones through the roof.",
         ],
       ],
       onWrong: [
         [
-          "Sodium minus chloride minus bicarbonate. One twenty-nine, minus eighty-eight, minus twelve.",
-          "Twenty-nine. She's in DKA — glucose over two fifty, gap acidosis, ketones through the roof.",
+          "Sodium minus chloride minus bicarbonate. {na@0}, minus {cl@0}, minus {hco3@0}.",
+          "{ag@0}. She's in DKA — glucose over {=250}, gap acidosis, ketones through the roof.",
         ],
       ],
     },
@@ -215,7 +218,7 @@ export const dkaCase: MedicalCase = {
       say: [
         "Sorry — can I ask something?",
         [
-          "Her gap went up by seventeen. But her bicarbonate only fell by twelve, from twenty-four down to twelve.",
+          "Her gap went up by {=17}. But her bicarbonate only fell by {=12}, from {=24} down to {hco3@0}.",
           "If it were only the ketoacidosis, those should move together, right? So doesn't that mean there's a second thing going on?",
         ],
       ],
@@ -240,7 +243,7 @@ export const dkaCase: MedicalCase = {
       ],
       onWrong: [
         [
-          "So the delta ratio is about 1.4 — the gap rose more than the bicarbonate fell.",
+          "So the delta ratio is about {=1.4} — the gap rose more than the bicarbonate fell.",
           "She's been vomiting hydrochloric acid for two days. There's a metabolic alkalosis underneath propping her bicarbonate up, which means her acidosis is worse than that number looks.",
         ],
       ],
@@ -300,7 +303,7 @@ export const dkaCase: MedicalCase = {
       speaker: "okafor",
       tier: "core",
       domain: "treatment",
-      say: ["She's sixty-eight kilos. What rate do you want the insulin infusion started at?"],
+      say: ["She's {=68} kilos. What rate do you want the insulin infusion started at?"],
       min: 0.02,
       max: 0.2,
       step: 0.01,
@@ -310,10 +313,10 @@ export const dkaCase: MedicalCase = {
       decimals: 2,
       derived: { label: "units/hr", perUnit: 68, decimals: 1 },
       rep: { who: "okafor", points: 1 },
-      onRight: ["Point one per kilo per hour. Write it."],
+      onRight: ["{=0.1} per kilo per hour. Write it."],
       onWrong: [
         [
-          "Point one units per kilogram per hour. That's the number, and it hasn't changed in twenty years.",
+          "{=0.1} units per kilogram per hour. That's the number, and it hasn't changed in 20 years.",
           "Write it.",
         ],
       ],
@@ -327,7 +330,7 @@ export const dkaCase: MedicalCase = {
       domain: "guidelines",
       say: [
         "Pharmacy — calling to verify an order on Reyes in bed four.",
-        "I have regular insulin infusion, 10u per hour. Confirming before I release it?",
+        "I have regular insulin infusion, {=10u} per hour. Confirming before I release it?",
       ],
       affirmLabel: "Confirm it",
       denyLabel: "Hold on",
@@ -350,14 +353,14 @@ export const dkaCase: MedicalCase = {
       rep: { who: "pharmacy", points: 3 },
       onRight: [
         [
-          "That's what I had too. Six point eight an hour, I'll fix it.",
-          "And for what it's worth — whoever typed that wrote it as one-zero-u. That 'u' is on the do-not-use list for exactly this reason. It reads as a hundred.",
+          "That's what I had too. {=6.8} an hour, I'll fix it.",
+          "And for what it's worth — whoever typed that wrote it as {=10u}. That 'u' is on the do-not-use list for exactly this reason. It reads as {=100}.",
         ],
       ],
       onWrong: [
         [
-          "I'm going to push back on that one. She's sixty-eight kilos, so point one per kilo is six point eight an hour, not ten.",
-          "Also — that order was written as one-zero-u. The 'u' abbreviation is on the do-not-use list because it reads as a hundred. I'll get it rewritten.",
+          "I'm going to push back on that one. She's {=68} kilos, so {=0.1} per kilo is {=6.8} an hour, not {=10}.",
+          "Also — that order was written as {=10u}. The 'u' abbreviation is on the do-not-use list because it reads as {=100}. I'll get it rewritten.",
         ],
       ],
     },
@@ -370,7 +373,7 @@ export const dkaCase: MedicalCase = {
       say: [
         [
           "Before you hang that — her repeat chem just came back.",
-          "Potassium's three point one.",
+          "Potassium's {k@1}.",
         ],
       ],
     },
@@ -411,13 +414,13 @@ export const dkaCase: MedicalCase = {
       onRight: [
         [
           "That's what I thought. I'll get the potassium hung and hold the insulin.",
-          "Forty milliequivalents — I'll run it central, not through the twenty-two in her hand.",
+          "{=40} milliequivalents — I'll run it central, not through the {=22}-gauge in her hand.",
         ],
       ],
       onWrong: [
         [
           "I'm going to hold it until you're sure.",
-          "Three point one is below the cutoff. Potassium first, insulin after — I've seen this go badly.",
+          "{k@1} is below the cutoff. Potassium first, insulin after — I've seen this go badly.",
         ],
       ],
     },
@@ -451,15 +454,15 @@ export const dkaCase: MedicalCase = {
       rep: { who: "okafor", points: 2 },
       onRight: [
         [
-          "Right. And notice what happened — she arrived at five point four and everyone relaxed.",
-          "Her total body potassium was never five point four. It was depleted the whole time. The acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+          "Right. And notice what happened — she arrived at {k@0} and everyone relaxed.",
+          "Her total body potassium was never {k@0}. It was depleted the whole time. The acidosis and the insulin deficiency were holding it in the serum where you could see it.",
         ],
-        "Two liters in, and the truth showed up.",
+        "{=2} litres in, and the truth showed up.",
       ],
       onWrong: [
         [
           "Insulin drives potassium into cells. That's the whole answer.",
-          "She arrived at five point four and everyone relaxed. But her total body potassium was never five point four — the acidosis and the insulin deficiency were holding it in the serum where you could see it.",
+          "She arrived at {k@0} and everyone relaxed. But her total body potassium was never {k@0} — the acidosis and the insulin deficiency were holding it in the serum where you could see it.",
         ],
         "Two liters in, and the truth showed up.",
       ],
@@ -585,7 +588,7 @@ export const dkaCase: MedicalCase = {
       speaker: "dani",
       say: [
         [
-          "Three thirty. Potassium's up to three seven, so the insulin's been running about four hours.",
+          "{t@2}. Potassium's up to {k@2}, so the insulin's been running about two hours.",
           "Repeat chem is on the screen.",
         ],
       ],
@@ -602,7 +605,7 @@ export const dkaCase: MedicalCase = {
       tier: "core",
       domain: "treatment",
       say: [
-        "Glucose two sixty-eight, coming down about seventy an hour.",
+        "Glucose {glucose@2}, coming down about {=70} an hour.",
         "When do you change her fluids?",
       ],
       choices: [
@@ -618,9 +621,9 @@ export const dkaCase: MedicalCase = {
         d: "Adding dextrose this early just means more insulin and more sugar chasing each other. Two hundred is the number.",
       },
       rep: { who: "okafor", points: 2 },
-      onRight: ["Two hundred. Dextrose goes up, insulin keeps going."],
+      onRight: ["{=200}. Dextrose goes up, insulin keeps going."],
       onWrong: [
-        "At two hundred you add dextrose, and the insulin rate does not change.",
+        "At {=200} you add dextrose, and the insulin rate does not change.",
       ],
     },
 
@@ -730,10 +733,10 @@ export const dkaCase: MedicalCase = {
       domain: "complications",
       wager: true,
       say: [
-        "Gap's seven. Bicarb's twenty-two. She's through it.",
+        "Gap's {ag@3}. Bicarb's {hco3@3}. She's through it.",
         [
-          "But look at her chloride. Eighty-eight on arrival, a hundred and nine now.",
-          "Her pH is still 7.37 and her bicarbonate is only just normal. What happened?",
+          "But look at her chloride. {cl@0} on arrival, {cl@3} now.",
+          "Her pH is still {ph@3} and her bicarbonate is only just normal. What happened?",
         ],
       ],
       choices: [
@@ -761,7 +764,7 @@ export const dkaCase: MedicalCase = {
       ],
       onWrong: [
         [
-          "Normal saline has a chloride of a hundred and fifty-four. Give someone four litres of it and you get a hyperchloremic, non-gap acidosis.",
+          "Normal saline has a chloride of {=154}. Give someone {=4} litres of it and you get a hyperchloremic, non-gap acidosis.",
           "It's benign and it self-corrects. But if you don't know it's coming, you look at that bicarbonate, decide she isn't better, and keep the insulin running into a hypoglycemic event.",
         ],
         "Which is the whole reason we follow the gap and not the bicarbonate.",
@@ -842,7 +845,7 @@ export const dkaCase: MedicalCase = {
           "Can I ask something. Am I in trouble?",
           "The nurse last night asked why I stopped taking it and I said I ran out, and she wrote something down.",
         ],
-        "I wasn't being careless. It was three hundred and forty dollars.",
+        "I wasn't being careless. It was {=$340}.",
       ],
     },
 
@@ -874,7 +877,7 @@ export const dkaCase: MedicalCase = {
         pump: "defensible",
       },
       why: {
-        cost: "She didn't have a knowledge problem. She had a three-hundred-and-forty-dollar problem, and it is the only thing here that actually prevents the next admission.",
+        cost: "She didn't have a knowledge problem. She had a $340 problem, and it is the only thing here that actually prevents the next admission.",
         educate:
           "She knows. She told you she knows. Educating someone about a barrier that isn't knowledge is how you make a patient feel blamed for something they can't control.",
         sooner: "She came in when her roommate could drive her. Earlier presentation doesn't address why she ran out.",
@@ -906,7 +909,7 @@ export const dkaCase: MedicalCase = {
         ],
         [
           "Everything you did tonight — the fluids, the potassium, the drip — that was the easy part. There's a protocol for it and the protocol works.",
-          "She's here because insulin costs money. No protocol fixes that, and she'll be back in six months if nobody deals with it.",
+          "She's here because insulin costs money. No protocol fixes that, and she'll be back in {=6} months if nobody deals with it.",
         ],
         "Go home. You did well.",
       ],

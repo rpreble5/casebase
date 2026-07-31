@@ -5,6 +5,7 @@ import { Header } from "./components/Header";
 import { Conversation } from "./components/Conversation/Conversation";
 import { ChartPanel } from "./components/Chart/ChartPanel";
 import { installDevHook } from "./telemetry/log";
+import { validateCase } from "./data/interpolate";
 import "./App.css";
 
 export default function App() {
@@ -16,6 +17,9 @@ export default function App() {
     // once the case is long enough that losing your place matters.
     begin(dkaCase, { fresh: true });
     installDevHook();
+    // A number that looks right but isn't is the failure mode worth catching.
+    const problems = validateCase(dkaCase);
+    if (problems.length) console.error("Case validation failed:\n" + problems.join("\n"));
   }, [begin]);
 
   return (

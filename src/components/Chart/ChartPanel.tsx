@@ -108,7 +108,9 @@ function PatientTab() {
 function LabsTab() {
   const c = useRun((s) => s.caseData!);
   const n = useRun((s) => s.revealedDraws);
+  const unlocked = useRun((s) => s.unlockedAnalytes);
   const draws = c.draws.slice(0, n);
+  const analytes = c.analytes.filter((a) => !a.derived || unlocked.includes(a.id));
 
   if (draws.length === 0) {
     return <p className="chart__empty">Nothing resulted yet.</p>;
@@ -135,11 +137,9 @@ function LabsTab() {
             </tr>
           </thead>
           <tbody>
-            {c.analytes.map((a) => (
+            {analytes.map((a) => (
               <tr key={a.id}>
-                <td>
-                  {a.name} <span className="ref">{a.ref}</span>
-                </td>
+                <td title={`Reference: ${a.ref}`}>{a.name}</td>
                 {draws.map((d) => {
                   const v = d.values[a.id];
                   if (v === undefined) return <td key={d.time}>—</td>;

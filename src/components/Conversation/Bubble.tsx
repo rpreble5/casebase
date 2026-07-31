@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from "motion/react";
 import type { SpeakerId } from "../../types/case";
 import { SPEAKERS } from "../../data/speakers";
 import { Avatar } from "../ui/Avatar";
+import { useRun } from "../../state/runStore";
+import { renderLine } from "../../data/interpolate";
 
 /**
  * One speech bubble.
@@ -24,6 +26,8 @@ export function Bubble({
   animate?: boolean;
 }) {
   const sp = SPEAKERS[speaker];
+  const caseData = useRun((s) => s.caseData);
+  const revealedDraws = useRun((s) => s.revealedDraws);
   return (
     <motion.div
       className={`convo__row ${leads ? "convo__row--leads" : ""}`}
@@ -54,7 +58,7 @@ export function Bubble({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.26 }}
               >
-                {p}
+                {caseData ? renderLine(p, { caseData, revealedDraws }) : p}
               </motion.p>
             ))}
             {typing && (

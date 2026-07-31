@@ -202,3 +202,19 @@
     padding: 20px 18px 50px;
   }
 }
+
+/* Values pulled from the case's lab data. Slightly heavier than the prose so
+   figures stand out when someone reads a number aloud. */
+.num {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.005em;
+}
+
+/* An unresolved token must be impossible to miss during review. */
+.num--bad {
+  color: var(--paper);
+  background: var(--abnormal);
+  padding: 0 5px;
+  border-radius: 5px;
+}

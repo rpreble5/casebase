@@ -1,5 +1,5 @@
 .chart {
-  width: 380px;
+  width: 420px;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -139,6 +139,11 @@
 
 /* ---- labs: the quiet zone ---- */
 
+/* The table must never be wider than its panel. Scrollbars are hidden app-wide,
+   so an overflow here clips silently — which is exactly how the chart ended up
+   showing an arrival column while the dialogue discussed the 02:30 draw. The
+   analyte column wraps rather than pushing the value columns out of view. */
+
 .labs {
   border: 2px solid var(--ink);
   border-radius: 12px;
@@ -172,19 +177,20 @@
 }
 
 .labs__scroll {
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .labs table {
   border-collapse: collapse;
   width: 100%;
+  table-layout: auto;
   font-variant-numeric: tabular-nums;
 }
 
 .labs th,
 .labs td {
   text-align: right;
-  padding: 1.5px 12px;
+  padding: 1.5px 9px;
   font-size: 13.5px;
   font-weight: 600;
   line-height: 1.28;
@@ -195,6 +201,8 @@
 .labs td:first-child {
   text-align: left;
   font-weight: 700;
+  /* Wraps at spaces only — breaking mid-word reads as a rendering fault. */
+  white-space: normal;
 }
 
 .labs thead th {
@@ -203,7 +211,7 @@
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 7px 12px 5px;
+  padding: 7px 9px 5px;
 }
 
 .labs thead th:last-child {
@@ -237,6 +245,13 @@
   font-weight: 600;
   color: var(--ink-soft);
   margin-left: 7px;
+}
+
+/* Reference ranges live on hover. Abnormal is already carried by the red and
+   the triangle, which is the job the inline range was doing — and inline it cost
+   enough width to push a whole draw off the panel. */
+.labs .ref {
+  display: none;
 }
 
 /* One red, one weight. Direction is a triangle, not a second hue. */
