@@ -1,8 +1,11 @@
 name: Deploy to Pages
 
+# main only. The github-pages environment's branch policy rejects deployments
+# from anywhere else, so triggering on feature branches would just produce a
+# build that always fails at the gate.
 on:
   push:
-    branches: [main, claude/interactive-medical-case-app-qsz6y2]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -24,6 +27,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # `npm run build` runs tsc first, so a type error fails here and the
+      # deploy job never runs. A broken build can't reach the live site.
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

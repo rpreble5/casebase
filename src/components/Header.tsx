@@ -27,7 +27,11 @@ export function Header({ onToggleChart }: { onToggleChart: () => void }) {
     <header className="hd">
       <div className="hd__title">
         <b>{title}</b>
-        <em>DKA · vertical slice</em>
+        {/* Build stamp: hover to see when it was deployed. Removes any doubt
+            about whether you're looking at the newest push or a cached build. */}
+        <em title={`built ${new Date(__BUILD_TIME__).toLocaleString()}`}>
+          DKA · vertical slice · {__BUILD_SHA__}
+        </em>
       </div>
 
       <div className="hd__rep">
