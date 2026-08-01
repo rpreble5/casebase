@@ -23,8 +23,17 @@ export const SPEAKERS: Record<SpeakerId, SpeakerDef> = {
   nadia: { id: "nadia", name: "Nadia", role: "her daughter", color: "var(--gunner)", face: "cap" },
   harold: { id: "harold", name: "Harold", role: "patient", color: "var(--rose)", face: "plain" },
   denise: { id: "denise", name: "Denise", role: "his wife", color: "var(--gunner)", face: "bangs" },
+  sen: { id: "sen", name: "Dr. Sen", role: "attending", color: "var(--plum)", face: "bangs" },
+  chen: { id: "chen", name: "Dr. Chen", role: "ED physician", color: "var(--ochre)", face: "plain" },
+  maya: { id: "maya", name: "Maya", role: "respiratory therapist", color: "var(--sage)", face: "cap" },
+  ibarra: { id: "ibarra", name: "Dr. Ibarra", role: "pulmonology fellow", color: "var(--clay)", face: "glasses" },
+  leon: { id: "leon", name: "Walter", role: "patient", color: "var(--rose)", face: "plain" },
+  tasha: { id: "tasha", name: "Ruth", role: "his wife", color: "var(--gunner)", face: "bangs" },
   system: { id: "system", name: "", role: "", color: "var(--paper-sink)", face: "plain" },
 };
 
 /** Everyone who can hold a reputation meter. */
-export const RATED_SPEAKERS: SpeakerId[] = ["okafor", "ezra", "dani", "pharmacy", "gi", "marisol", "ray", "eileen", "nadia", "harold", "denise"];
+export const RATED_SPEAKERS: SpeakerId[] = [
+  "okafor", "ezra", "dani", "pharmacy", "gi", "marisol", "ray", "eileen", "nadia", "harold", "denise",
+  "sen", "maya", "ibarra", "leon", "tasha",
+];

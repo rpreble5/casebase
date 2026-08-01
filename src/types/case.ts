@@ -25,6 +25,12 @@ export type SpeakerId =
   | "nadia" // her daughter
   | "harold" // patient, heart failure case
   | "denise" // his wife
+  | "sen" // attending, COPD case
+  | "chen" // ED physician, COPD case
+  | "maya" // respiratory therapist, COPD case
+  | "ibarra" // pulmonology fellow, COPD case
+  | "leon" // Walter, patient in COPD case
+  | "tasha" // Ruth, his wife in COPD case
   | "system"; // results landing, time passing
 
 /** What the beat is teaching. Drives the end-of-case breakdown. */

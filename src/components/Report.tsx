@@ -86,6 +86,42 @@ const STANDINGS: Record<SpeakerId, [string, string, string, string]> = {
     "Is still worried and unsure what to watch for",
     "Left without answers",
   ],
+  sen: [
+    "Would hand you the next admission",
+    "Trusts your working plan",
+    "Kept checking the orders",
+    "Took over the bedside",
+  ],
+  chen: [
+    "Handed over a clear working plan",
+    "Trusted the admission",
+    "Needed to clarify the handoff",
+    "Had to repeat the essentials",
+  ],
+  maya: [
+    "Trusts your respiratory plan",
+    "Needed only one clarification",
+    "Had to retitrate the plan",
+    "Called for backup early",
+  ],
+  ibarra: [
+    "Got the answer before asking",
+    "Found the consult focused",
+    "Had to reconstruct the trend",
+    "Could not find the clinical question",
+  ],
+  leon: [
+    "Went home knowing what to watch for",
+    "Understood the important changes",
+    "Still has unanswered questions",
+    "Went home without a usable plan",
+  ],
+  tasha: [
+    "Knows exactly when to call",
+    "Feels ready to help",
+    "Is unsure what worsening looks like",
+    "Left without clear instructions",
+  ],
   system: ["", "", "", ""],
 };
 
